@@ -26,15 +26,19 @@
 #It contains the fields "Make", "Model", "Year", "Variant", and "ID"
 #It also contains the Service object named "engine.oil"
 
+#Additional notes...
+#Whitespace is required between each element in a line.
+#Horizontal indentation is not mandatory, but recommended for human readability.
+#A single line can only contain a single object, or a single field, or a single closing bracket.
+
 Vehicle "1234" {
 	Make "Hyundai"
 	Model "Accent"
 	Year "2001"
 	Variant "GS 1.6L"
 	ID "NA"
-
-	Service "engine.oil" {
-		MaintenanceInterval "3500 miles"
+	Item "engine.oil" {
+		Interval "3500 miles"
 		Record {
 			Date "Date or Time here"
 			Mileage "123456"

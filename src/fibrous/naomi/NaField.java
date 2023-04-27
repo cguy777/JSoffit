@@ -1,20 +1,16 @@
 package fibrous.naomi;
 
 public class NaField {
-	private NaObject parent;
+	private NaObject parent = null;
 	
 	private String name;
 	private String value;
 	
 	private int level = -1;
 	
-	public NaField(String name, String value, NaObject parent) {
+	public NaField(String name, String value) {
 		this.name = name;
 		this.value = value;
-		
-		this.parent = parent;
-		
-		calcNestingLevel(this.parent);
 	}
 	
 	public String getName() {
@@ -47,7 +43,12 @@ public class NaField {
 		return level;
 	}
 	
-	private void calcNestingLevel(NaObject parent) {
+	protected void setParent(NaObject parent) {
+		this.parent = parent;
+		calcNestingLevel(this.parent);
+	}
+	
+	protected void calcNestingLevel(NaObject parent) {
 		if(parent != null) {
 			level++;
 			calcNestingLevel(parent.getParent());

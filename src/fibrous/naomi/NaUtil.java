@@ -24,7 +24,7 @@ public class NaUtil {
 	
 	public static NaObject ParseStream(InputStream stream) throws Exception {
 		Scanner scanner = new Scanner(stream);
-		NaObject root = new NaObject(null, null, null);
+		NaObject root = new NaObject(null, null);
 		
 		parseObject(scanner, root);
 		
@@ -171,7 +171,7 @@ public class NaUtil {
 			isObject = isObject(tokens);
 			
 			if(isField) {
-				parent.addField(new NaField(tokens.get(0), stripQuotations(tokens.get(1)), parent));
+				parent.addField(new NaField(tokens.get(0), stripQuotations(tokens.get(1))));
 			}
 			
 			if(isObject) {
@@ -179,9 +179,9 @@ public class NaUtil {
 				NaObject object;
 				
 				if(tokens.size() == 2) {
-					object = new NaObject(tokens.get(0), null, parent);
+					object = new NaObject(tokens.get(0), null);
 				} else {
-					object = new NaObject(tokens.get(0), stripQuotations(tokens.get(1)), parent);
+					object = new NaObject(tokens.get(0), stripQuotations(tokens.get(1)));
 				}
 					
 				parseObject(scanner, object);

@@ -4,7 +4,7 @@ import java.util.LinkedList;
 
 public class NaObject {
 	
-	private NaObject parent;
+	private NaObject parent = null;
 	
 	private String type;
 	private String name;
@@ -14,16 +14,12 @@ public class NaObject {
 	
 	private int level = -1;
 	
-	public NaObject(String type, String name, NaObject parent) {
+	public NaObject(String type, String name) {
 		this.type = type;
 		this.name = name;
 		
 		objects = new LinkedList<>();
 		fields = new LinkedList<>();
-		
-		this.parent = parent;
-		
-		calcNestingLevel(this.parent);
 	}
 	
 	public String getType() {
@@ -129,10 +125,12 @@ public class NaObject {
 	}
 	
 	public void addObject(NaObject object) {
+		object.setParent(this);
 		objects.add(object);
 	}
 	
 	public void addField(NaField field) {
+		field.setParent(this);
 		fields.add(field);
 	}
 	
@@ -170,10 +168,25 @@ public class NaObject {
 		return level;
 	}
 	
-	private void calcNestingLevel(NaObject parent) {
+	protected void setParent(NaObject parent) {
+		this.parent = parent;
+		calcNestingLevel(this.parent);
+	}
+	
+	protected void calcNestingLevel(NaObject parent) {
+		//Calculate for yourself first
 		if(parent != null) {
 			level++;
 			calcNestingLevel(parent.getParent());
+		}
+		
+		//Calculate for your children next
+		for(NaObject childObject : objects) {
+			childObject.calcNestingLevel(parent);
+		}
+		
+		for(NaField childField : fields) {
+			childField.calcNestingLevel(parent);
 		}
 	}
 }
