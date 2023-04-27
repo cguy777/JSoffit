@@ -1,0 +1,45 @@
+#This is an example of my new Structured Data Format.
+
+#This is a comment.  Comments must start at the beginning of a line
+
+#This data format is based off of the concept of objects, fields, and properties.
+
+#A property is defined as either an object or field.
+#All properties belongs to an object.
+
+#Objects have a type, name, and properties.
+#The type classifies what the object is, and is the first part of the object declaration.
+#The name is enclosed in parenthesis, and succeeds the type.
+#Names are optional as you don't always need them, especially when the object's properties provide adequate distinction on their own.
+#All properties are contained within curly brackets.
+#Curly brackets are required to indicate that an object has been declared, and not a field.
+#Every file implicitly contains a "root" object as the 1st level.
+
+#Fields are named values, or variables.
+#Fields have two properties: name and value.
+#Names precede the value and give a way to label and reference the value.
+#Value succeeds the name and is always contained in quotes.  This is the actual data we want to reference.
+#All fields must be contained within an object.  If a field is not placed in a declared object, it is placed into the "root" object at the 1st level.
+
+#Below is an object of type "Vehicle"
+#This Vehicle has the name of "1234"
+#It contains the fields "Make", "Model", "Year", "Variant", and "ID"
+#It also contains the Service object named "engine.oil"
+
+Vehicle "1234" {
+	Make "Hyundai"
+	Model "Accent"
+	Year "2001"
+	Variant "GS 1.6L"
+	ID "NA"
+
+	Service "engine.oil" {
+		MaintenanceInterval "3500 miles"
+		Record {
+			Date "Date or Time here"
+			Mileage "123456"
+			Description "10w-30 Conventional"
+			Note ""
+		}
+	}
+}
