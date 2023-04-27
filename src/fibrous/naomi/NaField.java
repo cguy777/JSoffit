@@ -10,12 +10,7 @@ public class NaField {
 	
 	public NaField(String name, String value, NaObject parent) {
 		this.name = name;
-		this.value = "";
-		
-		//Strip quotations
-		for(int i = 0; i < value.length() - 2; i++) {
-			this.value += value.charAt(i + 1);
-		}
+		this.value = value;
 		
 		this.parent = parent;
 		

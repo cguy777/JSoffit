@@ -18,7 +18,7 @@ import java.util.Scanner;
 public class NaUtil {
 	
 	public static void main(String[]args) throws Exception {
-		NaObject root = NaUtil.ParseStream(new FileInputStream(new File("input.naomi")));
+		NaObject root = NaUtil.ParseStream(new FileInputStream(new File("NaomiDataFormatDefinition.naomi")));
 		NaUtil.WriteStream(root, new FileOutputStream(new File("output.naomi")));
 	}
 	
@@ -171,7 +171,7 @@ public class NaUtil {
 			isObject = isObject(tokens);
 			
 			if(isField) {
-				parent.addField(new NaField(tokens.get(0), tokens.get(1), parent));
+				parent.addField(new NaField(tokens.get(0), stripQuotations(tokens.get(1)), parent));
 			}
 			
 			if(isObject) {
@@ -181,7 +181,7 @@ public class NaUtil {
 				if(tokens.size() == 2) {
 					object = new NaObject(tokens.get(0), null, parent);
 				} else {
-					object = new NaObject(tokens.get(0), tokens.get(1), parent);
+					object = new NaObject(tokens.get(0), stripQuotations(tokens.get(1)), parent);
 				}
 					
 				parseObject(scanner, object);
@@ -291,5 +291,13 @@ public class NaUtil {
 		
 		//default determination of false
 		return false;
+	}
+	
+	private static String stripQuotations(String s) {
+		String stripped = "";
+		for(int i = 0; i < s.length() - 2; i++) {
+			stripped += s.charAt(i + 1);
+		}
+		return stripped;
 	}
 }

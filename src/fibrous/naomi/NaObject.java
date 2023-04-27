@@ -16,17 +16,7 @@ public class NaObject {
 	
 	public NaObject(String type, String name, NaObject parent) {
 		this.type = type;
-		
-		if(name == null) {
-			this.name = null;
-		} else {
-			this.name = "";
-			
-			//Strip quotations
-			for(int i = 0; i < name.length() - 2; i++) {
-				this.name += name.charAt(i + 1);
-			}
-		}
+		this.name = name;
 		
 		objects = new LinkedList<>();
 		fields = new LinkedList<>();
