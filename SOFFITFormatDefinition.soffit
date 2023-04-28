@@ -1,6 +1,6 @@
 #This is an example and definition of SOFFIT (String Object Format For Information Transfer).
 
-#This is a comment.  Comments must start at the beginning of a line.
+#This is a comment.  Comments MUST start at the beginning of a line.
 
 #This data format is based off of the concept of objects, fields, and properties.
 
@@ -31,11 +31,11 @@
 #Horizontal indentation is not mandatory, but recommended for human readability.
 #A single line can only contain a single object, or a single field, or a single closing bracket.
 
-#The stream/file must start with "__SoffitStart" and then a new line.
+#The stream/file MUST start with "__SoffitStart" and then a new line.
 
 __SoffitStart
 
-Vehicle "1234" {
+Vehicle "My Car" {
 	Make "Hyundai"
 	Model "Accent"
 	Year "2001"
@@ -52,5 +52,7 @@ Vehicle "1234" {
 	}
 }
 
-#The stream/file must end with "__SoffitEnd"
+#The stream/file MUST end with "__SoffitEnd"
+#The SOFFIT Footer "__SoffitEnd" may not be needed when read from files, but could cause problems if missing from continual data streams.
+#Full compliance requires the footer.
 __SoffitEnd

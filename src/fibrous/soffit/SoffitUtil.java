@@ -21,7 +21,7 @@ public class SoffitUtil {
 	public static final String SOFFIT_END = "__SoffitEnd";
 	
 	public static void main(String[]args) throws Exception {
-		SoffitObject root = SoffitUtil.ReadStream(new FileInputStream(new File("SoffitFormatDefinition.soffit")));
+		SoffitObject root = SoffitUtil.ReadStream(new FileInputStream(new File("input.soffit")));
 		SoffitUtil.WriteStream(root, new FileOutputStream(new File("output.soffit")));
 	}
 	
