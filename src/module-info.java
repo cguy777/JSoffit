@@ -5,6 +5,6 @@
  * @author noahm
  *
  */
-module NAOMI {
-	exports fibrous.naomi;
+module SOFFIT {
+	exports fibrous.soffit;
 }

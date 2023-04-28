@@ -1,4 +1,4 @@
-package fibrous.naomi;
+package fibrous.soffit;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -11,20 +11,20 @@ import java.util.ArrayList;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
 
-//******************************************
-//Now Another Object Model Interface (NAOMI)
-//******************************************
+//******************************************************
+//String Object Format For Information Transfer (SOFFIT)
+//******************************************************
 
-public class NaUtil {
+public class SoffitUtil {
 	
 	public static void main(String[]args) throws Exception {
-		NaObject root = NaUtil.ParseStream(new FileInputStream(new File("NaomiDataFormatDefinition.naomi")));
-		NaUtil.WriteStream(root, new FileOutputStream(new File("output.naomi")));
+		SoffitObject root = SoffitUtil.ParseStream(new FileInputStream(new File("NaomiDataFormatDefinition.naomi")));
+		SoffitUtil.WriteStream(root, new FileOutputStream(new File("output.naomi")));
 	}
 	
-	public static NaObject ParseStream(InputStream stream) throws Exception {
+	public static SoffitObject ParseStream(InputStream stream) throws Exception {
 		Scanner scanner = new Scanner(stream);
-		NaObject root = new NaObject(null, null);
+		SoffitObject root = new SoffitObject(null, null);
 		
 		parseObject(scanner, root);
 		
@@ -32,19 +32,19 @@ public class NaUtil {
 		return root;
 	}
 	
-	public static void WriteStream(NaObject root, OutputStream output) {
+	public static void WriteStream(SoffitObject root, OutputStream output) {
 		BufferedOutputStream bStream = new BufferedOutputStream(output);
 		writeObjects(root, bStream);
 	}
 	
-	private static void writeObjects(NaObject object, BufferedOutputStream bStream) {
+	private static void writeObjects(SoffitObject object, BufferedOutputStream bStream) {
 		String line = null;
 		byte[] lineBytes = null;
 		
 		//Write fields first
 		for(int i = 0; i < object.getAllFields().size(); i++) {
 			
-			NaField field = object.getAllFields().get(i);
+			SoffitField field = object.getAllFields().get(i);
 			line = "";
 			
 			//Set indentation
@@ -72,7 +72,7 @@ public class NaUtil {
 		//Write object declarations and then recursively write other objects
 		for(int i = 0; i < object.getAllObjects().size(); i++) {
 			
-			NaObject currentObject = object.getAllObjects().get(i);
+			SoffitObject currentObject = object.getAllObjects().get(i);
 			line = "";
 			
 			//Set indentation
@@ -138,7 +138,7 @@ public class NaUtil {
 		return lineBytes;
 	}
 	
-	private static void parseObject(Scanner scanner, NaObject parent) throws Exception {
+	private static void parseObject(Scanner scanner, SoffitObject parent) throws Exception {
 		
 		while(true) {
 			
@@ -171,17 +171,17 @@ public class NaUtil {
 			isObject = isObject(tokens);
 			
 			if(isField) {
-				parent.addField(new NaField(tokens.get(0), stripQuotations(tokens.get(1))));
+				parent.addField(new SoffitField(tokens.get(0), stripQuotations(tokens.get(1))));
 			}
 			
 			if(isObject) {
 				
-				NaObject object;
+				SoffitObject object;
 				
 				if(tokens.size() == 2) {
-					object = new NaObject(tokens.get(0), null);
+					object = new SoffitObject(tokens.get(0), null);
 				} else {
-					object = new NaObject(tokens.get(0), stripQuotations(tokens.get(1)));
+					object = new SoffitObject(tokens.get(0), stripQuotations(tokens.get(1)));
 				}
 					
 				parseObject(scanner, object);

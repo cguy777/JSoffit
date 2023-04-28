@@ -1,20 +1,20 @@
-package fibrous.naomi;
+package fibrous.soffit;
 
 import java.util.LinkedList;
 
-public class NaObject {
+public class SoffitObject {
 	
-	private NaObject parent = null;
+	private SoffitObject parent = null;
 	
 	private String type;
 	private String name;
 	
-	private LinkedList<NaObject> objects;
-	private LinkedList<NaField> fields;
+	private LinkedList<SoffitObject> objects;
+	private LinkedList<SoffitField> fields;
 	
 	private int level = -1;
 	
-	public NaObject(String type, String name) {
+	public SoffitObject(String type, String name) {
 		this.type = type;
 		this.name = name;
 		
@@ -36,7 +36,7 @@ public class NaObject {
 	 * @param objectName
 	 * @return
 	 */
-	public NaObject getObject(String objectName) {
+	public SoffitObject getObject(String objectName) {
 		for(int i = 0; i < objects.size(); i++) {
 			if(objects.get(i).getName().compareTo(objectName) == 0) {
 				return objects.get(i);
@@ -54,7 +54,7 @@ public class NaObject {
 	 * @param fieldName
 	 * @return
 	 */
-	public NaField getField(String fieldName) {
+	public SoffitField getField(String fieldName) {
 		for(int i = 0; i < fields.size(); i++) {
 			if(fields.get(i).getName().compareTo(fieldName) == 0) {
 				return fields.get(i);
@@ -70,9 +70,9 @@ public class NaObject {
 	 * @param objectsName
 	 * @return
 	 */
-	public LinkedList<NaObject> getObjectsByName(String objectsName) {
+	public LinkedList<SoffitObject> getObjectsByName(String objectsName) {
 		
-		LinkedList<NaObject> foundObjects = new LinkedList<>();
+		LinkedList<SoffitObject> foundObjects = new LinkedList<>();
 		
 		for(int i = 0; i < objects.size(); i++) {
 			if(objects.get(i).getName().compareTo(objectsName) == 0) {
@@ -92,9 +92,9 @@ public class NaObject {
 	 * @param objectsName
 	 * @return
 	 */
-	public LinkedList<NaObject> getObjectsByType(String objectsType) {
+	public LinkedList<SoffitObject> getObjectsByType(String objectsType) {
 		
-		LinkedList<NaObject> foundObjects = new LinkedList<>();
+		LinkedList<SoffitObject> foundObjects = new LinkedList<>();
 		
 		for(int i = 0; i < objects.size(); i++) {
 			if(objects.get(i).getType().compareTo(objectsType) == 0) {
@@ -112,7 +112,7 @@ public class NaObject {
 	 * Returns a LinkedList containing all objects within this object.
 	 * @return
 	 */
-	public LinkedList<NaObject> getAllObjects() {
+	public LinkedList<SoffitObject> getAllObjects() {
 		return objects;
 	}
 	
@@ -120,16 +120,16 @@ public class NaObject {
 	 * Returns a LinkedList containing all fields within this object.
 	 * @return
 	 */
-	public LinkedList<NaField> getAllFields() {
+	public LinkedList<SoffitField> getAllFields() {
 		return fields;
 	}
 	
-	public void addObject(NaObject object) {
+	public void addObject(SoffitObject object) {
 		object.setParent(this);
 		objects.add(object);
 	}
 	
-	public void addField(NaField field) {
+	public void addField(SoffitField field) {
 		field.setParent(this);
 		fields.add(field);
 	}
@@ -155,7 +155,7 @@ public class NaObject {
 	 * Returns null if it attached to the root object.
 	 * @return
 	 */
-	public NaObject getParent() {
+	public SoffitObject getParent() {
 		return parent;
 	}
 	
@@ -168,12 +168,12 @@ public class NaObject {
 		return level;
 	}
 	
-	protected void setParent(NaObject parent) {
+	protected void setParent(SoffitObject parent) {
 		this.parent = parent;
 		calcNestingLevel(this.parent);
 	}
 	
-	protected void calcNestingLevel(NaObject parent) {
+	protected void calcNestingLevel(SoffitObject parent) {
 		//Calculate for yourself first
 		if(parent != null) {
 			level++;
@@ -181,11 +181,11 @@ public class NaObject {
 		}
 		
 		//Calculate for your children next
-		for(NaObject childObject : objects) {
+		for(SoffitObject childObject : objects) {
 			childObject.calcNestingLevel(parent);
 		}
 		
-		for(NaField childField : fields) {
+		for(SoffitField childField : fields) {
 			childField.calcNestingLevel(parent);
 		}
 	}
