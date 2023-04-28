@@ -1,2 +1,2 @@
-# NAOMI
- NAOMI (Now Another Object Model Interface)
+# SOFFIT
+SOFFIT (String Object Format For Information Transfer)
