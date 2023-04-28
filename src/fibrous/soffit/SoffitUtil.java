@@ -17,14 +17,28 @@ import java.util.Scanner;
 
 public class SoffitUtil {
 	
+	public static final String SOFFIT_START = "__SoffitStart";
+	public static final String SOFFIT_END = "__SoffitEnd";
+	
 	public static void main(String[]args) throws Exception {
-		SoffitObject root = SoffitUtil.ParseStream(new FileInputStream(new File("NaomiDataFormatDefinition.naomi")));
-		SoffitUtil.WriteStream(root, new FileOutputStream(new File("output.naomi")));
+		SoffitObject root = SoffitUtil.ReadStream(new FileInputStream(new File("SoffitFormatDefinition.soffit")));
+		SoffitUtil.WriteStream(root, new FileOutputStream(new File("output.soffit")));
 	}
 	
-	public static SoffitObject ParseStream(InputStream stream) throws Exception {
+	/**
+	 * Parses an {@link InputStream} as a root SOFFIT object.
+	 * @param stream
+	 * @return The SOFFIT root object as parsed from the InputStream.
+	 * @throws Exception
+	 */
+	public static SoffitObject ReadStream(InputStream stream) throws Exception {
 		Scanner scanner = new Scanner(stream);
 		SoffitObject root = new SoffitObject(null, null);
+		
+		//Look for __SoffitStart first
+		String header = getLine(scanner);
+		if(header.compareTo(SOFFIT_START) != 0)
+			throw new Exception("SOFFIT header not found.");
 		
 		parseObject(scanner, root);
 		
@@ -32,16 +46,40 @@ public class SoffitUtil {
 		return root;
 	}
 	
+	/**
+	 * Writes a SOFFIT object to an {@link OutputStream}.
+	 * @param root
+	 * @param output
+	 */
 	public static void WriteStream(SoffitObject root, OutputStream output) {
 		BufferedOutputStream bStream = new BufferedOutputStream(output);
+		
+		//Write header
+		byte[] lineBytes = convertLineToBytes(SOFFIT_START + "\n");
+		try {
+			bStream.write(lineBytes);
+			bStream.flush();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
 		writeObjects(root, bStream);
+		
+		//Write footer
+		lineBytes = convertLineToBytes(SOFFIT_END);
+		try {
+			bStream.write(lineBytes);
+			bStream.flush();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	private static void writeObjects(SoffitObject object, BufferedOutputStream bStream) {
 		String line = null;
 		byte[] lineBytes = null;
 		
-		//Write fields first
+		//Write the fields first
 		for(int i = 0; i < object.getAllFields().size(); i++) {
 			
 			SoffitField field = object.getAllFields().get(i);
@@ -146,20 +184,10 @@ public class SoffitUtil {
 			boolean isField = false;
 			String line;
 			
-			//Read until we can't
-			try {
-				line = scanner.nextLine();
-			} catch(NoSuchElementException e) {
-				break;
-			}
-			
-			//Check for blank line
-			if(line.isEmpty() || line.isBlank())
-				continue;
-			
-			//Check for comments
-			if(line.charAt(0) == '#')
-				continue;
+			line = getLine(scanner);
+			//If we didn't get anything, then break out.
+			if(line == null)
+				break;		
 			
 			ArrayList<String> tokens = getLineTokens(line);
 			
@@ -190,7 +218,7 @@ public class SoffitUtil {
 			
 			//Check for problems
 			if(!isField && !isObject)
-				throw new Exception("Malformed data encountered.");
+				throw new Exception("Malformed SOFFIT stream.");
 			
 		}
 	}
@@ -293,6 +321,38 @@ public class SoffitUtil {
 		return false;
 	}
 	
+	private static String getLine(Scanner scanner) {
+		String line = null;
+		
+		while(true) {
+			try {
+				line = scanner.nextLine();
+			} catch(NoSuchElementException e) {
+				break;
+			}
+			
+			//Check for blank line
+			if(line.isEmpty() || line.isBlank())
+				continue;
+			
+			//Check for comments
+			if(line.charAt(0) == '#')
+				continue;
+			
+			//If we see the footer, return null as that is the end
+			//of the SOFFIT portion of the stream.
+			if(line.compareTo(SOFFIT_END) == 0) {
+				line = null;
+				break;
+			}
+			
+			if(line != null)
+				break;
+		}
+		
+		return line;
+	}
+	
 	private static String stripQuotations(String s) {
 		String stripped = "";
 		for(int i = 0; i < s.length() - 2; i++) {
@@ -300,4 +360,8 @@ public class SoffitUtil {
 		}
 		return stripped;
 	}
+}
+
+enum ParseEndState {
+	EOS, SoffitFooter
 }

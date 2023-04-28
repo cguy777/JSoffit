@@ -1,6 +1,6 @@
-#This is an example of my new Structured Data Format.
+#This is an example and definition of SOFFIT (String Object Format For Information Transfer).
 
-#This is a comment.  Comments must start at the beginning of a line
+#This is a comment.  Comments must start at the beginning of a line.
 
 #This data format is based off of the concept of objects, fields, and properties.
 
@@ -15,7 +15,7 @@
 #Curly brackets are required to indicate that an object has been declared, and not a field.
 #Every file implicitly contains a "root" object as the 1st level.
 
-#Fields are named values, or variables.
+#Fields are named values/strings.
 #Fields have two properties: name and value.
 #Names precede the value and give a way to label and reference the value.
 #Value succeeds the name and is always contained in quotes.  This is the actual data we want to reference.
@@ -30,6 +30,10 @@
 #Whitespace is required between each element in a line.
 #Horizontal indentation is not mandatory, but recommended for human readability.
 #A single line can only contain a single object, or a single field, or a single closing bracket.
+
+#The stream/file must start with "__SoffitStart" and then a new line.
+
+__SoffitStart
 
 Vehicle "1234" {
 	Make "Hyundai"
@@ -47,3 +51,6 @@ Vehicle "1234" {
 		}
 	}
 }
+
+#The stream/file must end with "__SoffitEnd"
+__SoffitEnd
