@@ -3,6 +3,7 @@ package fibrous.soffit.test;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 
 import fibrous.soffit.SoffitField;
 import fibrous.soffit.SoffitObject;

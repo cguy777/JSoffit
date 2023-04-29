@@ -109,7 +109,7 @@ public class SoffitUtil {
 			line = "";
 			
 			//Set indentation
-			for(int i2 = 0; i2 < currentObject.getNestingLevel(); i2++) {
+			for(int i2 = 0; i2 < currentObject.getNestedLevel(); i2++) {
 				line += "\t";
 			}
 			
@@ -141,7 +141,7 @@ public class SoffitUtil {
 			
 			//Set indentation
 			if(currentObject.getParent() != null) {
-				for(int i2 = 0; i2 < currentObject.getNestingLevel(); i2++) {
+				for(int i2 = 0; i2 < currentObject.getNestedLevel(); i2++) {
 					line += "\t";
 				}	
 			}
@@ -203,7 +203,7 @@ public class SoffitUtil {
 			isObject = isObject(tokens);
 			
 			if(isField) {
-				parent.addField(new SoffitField(tokens.get(0), stripQuotations(tokens.get(1))));
+				parent.add(new SoffitField(tokens.get(0), stripQuotations(tokens.get(1))));
 			}
 			
 			if(isObject) {
@@ -216,7 +216,7 @@ public class SoffitUtil {
 					object = new SoffitObject(tokens.get(0), stripQuotations(tokens.get(1)));
 				}
 					
-				parent.addObject(object);
+				parent.add(object);
 				parseObject(scanner, object);
 			}
 			

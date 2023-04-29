@@ -119,12 +119,20 @@ public class SoffitObject {
 		return fields;
 	}
 	
-	public void addObject(SoffitObject object) {
+	/**
+	 * Adds a SoffitObject as a child object.
+	 * @param object
+	 */
+	public void add(SoffitObject object) {
 		object.setParent(this);
 		objects.add(object);
 	}
 	
-	public void addField(SoffitField field) {
+	/**
+	 * Adds a SoffitField to this object.
+	 * @param field
+	 */
+	public void add(SoffitField field) {
 		field.setParent(this);
 		fields.add(field);
 	}
@@ -147,7 +155,7 @@ public class SoffitObject {
 	
 	/**
 	 * Returns the parent object of this object.
-	 * Returns null if it attached to the root object.
+	 * Returns null if it is directly attached to the root object.
 	 * @return
 	 */
 	public SoffitObject getParent() {
@@ -156,10 +164,10 @@ public class SoffitObject {
 	
 	/**
 	 * Returns how deeply nested this object is.
-	 * Returns 0 if this object is attached to the root object.
+	 * Returns 0 if this object is attached directly to the root object.
 	 * @return
 	 */
-	public int getNestingLevel() {
+	public int getNestedLevel() {
 		return level;
 	}
 	
