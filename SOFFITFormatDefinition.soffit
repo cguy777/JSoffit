@@ -5,7 +5,7 @@
 #This data format is based off of the concept of objects, fields, and properties.
 
 #A property is defined as either an object or field.
-#All properties belongs to an object.
+#All properties belong to objects.
 
 #Objects have a type, name, and properties.
 #The type classifies what the object is, and is the first part of the object declaration.
@@ -13,7 +13,7 @@
 #Names are optional as you don't always need them, especially when the object's properties provide adequate distinction on their own.
 #All properties are contained within curly brackets.
 #Curly brackets are required to indicate that an object has been declared, and not a field.
-#Every file implicitly contains a "root" object as the 1st level.
+#Every SOFFIT streams/files implicitly contains a "root" object and is every property's ancestor.
 
 #Fields are named values/strings.
 #Fields have two properties: name and value.
@@ -53,6 +53,7 @@ Vehicle "My Car" {
 }
 
 #The stream/file MUST end with "__SoffitEnd"
-#The SOFFIT Footer "__SoffitEnd" may not be needed when read from files, but could cause problems if missing from continual data streams.
-#Full compliance requires the footer.
+#The SOFFIT Footer "__SoffitEnd" may technically not be needed when read from files, but could cause problems if missing from continual data streams.
+#So for the sake of robustness and consistency, the SOFFIT footer is mandatory.
+
 __SoffitEnd

@@ -169,8 +169,8 @@ public class SoffitUtil {
 	private static byte[] convertLineToBytes(String line) {
 		char[] lineChars = line.toCharArray();
 		byte[] lineBytes = new byte[line.toCharArray().length];
-		for(int i2 = 0; i2 < lineChars.length; i2++) {
-			lineBytes[i2] = (byte) lineChars[i2];
+		for(int i = 0; i < lineChars.length; i++) {
+			lineBytes[i] = (byte) lineChars[i];
 		}
 		
 		return lineBytes;
@@ -187,13 +187,22 @@ public class SoffitUtil {
 			line = getLine(scanner);
 			//If we didn't get anything, then break out.
 			if(line == null)
-				break;		
+				throw new Exception("Incomplete SOFFIT stream.");		
 			
 			ArrayList<String> tokens = getLineTokens(line);
 			
 			//Check for end of object/closing curly bracket
 			if(tokens.size() == 1 && tokens.get(0).compareTo("}") == 0)
 				break;
+			
+			//Check for footer
+			if(tokens.get(0).compareTo(SOFFIT_END) == 0) {
+				//Check to see if it's possible to correctly end the stream at this point.
+				if(!parent.isRoot())
+					throw new Exception("SOFFIT footer encountered in non-root object");
+				
+				break;
+			}
 			
 			isField = isField(tokens);
 			isObject = isObject(tokens);
@@ -212,8 +221,8 @@ public class SoffitUtil {
 					object = new SoffitObject(tokens.get(0), stripQuotations(tokens.get(1)));
 				}
 					
-				parseObject(scanner, object);
 				parent.addObject(object);
+				parseObject(scanner, object);
 			}
 			
 			//Check for problems
@@ -322,13 +331,13 @@ public class SoffitUtil {
 	}
 	
 	private static String getLine(Scanner scanner) {
-		String line = null;
-		
 		while(true) {
+			String line = null;
 			try {
 				line = scanner.nextLine();
 			} catch(NoSuchElementException e) {
-				break;
+				//Explicitly return null
+				return null;
 			}
 			
 			//Check for blank line
@@ -339,18 +348,9 @@ public class SoffitUtil {
 			if(line.charAt(0) == '#')
 				continue;
 			
-			//If we see the footer, return null as that is the end
-			//of the SOFFIT portion of the stream.
-			if(line.compareTo(SOFFIT_END) == 0) {
-				line = null;
-				break;
-			}
-			
 			if(line != null)
-				break;
+				return line;
 		}
-		
-		return line;
 	}
 	
 	private static String stripQuotations(String s) {

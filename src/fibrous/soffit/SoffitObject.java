@@ -168,6 +168,15 @@ public class SoffitObject {
 		return level;
 	}
 	
+	/**
+	 * Returns true if this object was parsed as the root object from a stream.
+	 * I.e., if the nesting level of this object is -1, then this is the root object.
+	 * @return
+	 */
+	public boolean isRoot() {
+		return (level == -1);
+	}
+	
 	protected void setParent(SoffitObject parent) {
 		this.parent = parent;
 		calcNestingLevel(this.parent);
