@@ -187,14 +187,18 @@ public class SoffitUtil {
 			ArrayList<String> tokens = getLineTokens(line);
 			
 			//Check for end of object/closing curly bracket
-			if(tokens.size() == 1 && tokens.get(0).compareTo("}") == 0)
-				break;
+			if(tokens.size() == 1 && tokens.get(0).compareTo("}") == 0) {
+				if(!parent.isRoot())
+					break;
+				else
+					throw new SoffitException("SOFFIT stream contained to many closing brackets.");
+			}
 			
 			//Check for footer
 			if(tokens.get(0).compareTo(SOFFIT_END) == 0) {
 				//Check to see if it's possible to correctly end the stream at this point.
 				if(!parent.isRoot())
-					throw new SoffitException("SOFFIT footer encountered in non-root object");
+					throw new SoffitException("SOFFIT footer encountered in non-root object.");
 				
 				break;
 			}
