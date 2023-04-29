@@ -14,4 +14,8 @@ public class SoffitException extends RuntimeException {
 	SoffitException(String message) {
 		super(message);
 	}
+	
+	SoffitException(String message, int soffitLineNumber) {
+		super("SOFFIT Stream, line " + String.valueOf(soffitLineNumber) + ": " + message);
+	}
 }

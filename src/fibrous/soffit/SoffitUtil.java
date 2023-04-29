@@ -20,6 +20,8 @@ public class SoffitUtil {
 	public static final String SOFFIT_START = "__SoffitStart";
 	public static final String SOFFIT_END = "__SoffitEnd";
 	
+	private static int lineNumber = 0;
+	
 	/**
 	 * Parses an {@link InputStream} as a root SOFFIT object.
 	 * @param stream
@@ -27,6 +29,8 @@ public class SoffitUtil {
 	 * @throws SoffitException
 	 */
 	public static SoffitObject ReadStream(InputStream stream) throws SoffitException {
+		lineNumber = 0;
+		
 		Scanner scanner = new Scanner(stream);
 		SoffitObject root = new SoffitObject(null, null);
 		
@@ -182,7 +186,7 @@ public class SoffitUtil {
 			line = getLine(scanner);
 			//If we didn't get anything, then break out.
 			if(line == null)
-				throw new SoffitException("Incomplete SOFFIT stream.");		
+				throw new SoffitException("Incomplete SOFFIT stream.");
 			
 			ArrayList<String> tokens = getLineTokens(line);
 			
@@ -191,14 +195,14 @@ public class SoffitUtil {
 				if(!parent.isRoot())
 					break;
 				else
-					throw new SoffitException("SOFFIT stream contained to many closing brackets.");
+					throw new SoffitException("SOFFIT stream contained to many closing brackets.", lineNumber);
 			}
 			
 			//Check for footer
 			if(tokens.get(0).compareTo(SOFFIT_END) == 0) {
 				//Check to see if it's possible to correctly end the stream at this point.
 				if(!parent.isRoot())
-					throw new SoffitException("SOFFIT footer encountered in non-root object.");
+					throw new SoffitException("SOFFIT footer encountered in non-root object.", lineNumber);
 				
 				break;
 			}
@@ -226,7 +230,7 @@ public class SoffitUtil {
 			
 			//Check for problems
 			if(!isField && !isObject)
-				throw new SoffitException("Malformed SOFFIT stream.");
+				throw new SoffitException("SOFFIT syntax error", lineNumber);
 			
 		}
 	}
@@ -269,12 +273,16 @@ public class SoffitUtil {
 					}
 				}
 				
-				if(!nextToken.isBlank() && !nextToken.isEmpty())
+				if(!nextToken.isBlank() && !nextToken.isEmpty()) {
+					nextToken.strip();
 					tokens.add(nextToken);
+				}
 			}
 		} catch (IndexOutOfBoundsException e) {
-			if(!nextToken.isBlank() && !nextToken.isEmpty())
+			if(!nextToken.isBlank() && !nextToken.isEmpty()) {
+				nextToken.strip();
 				tokens.add(nextToken);
+			}
 		}
 		
 		return tokens;
@@ -331,7 +339,9 @@ public class SoffitUtil {
 	
 	private static String getLine(Scanner scanner) {
 		while(true) {
+			lineNumber++;
 			String line = null;
+			
 			try {
 				line = scanner.nextLine();
 			} catch(NoSuchElementException e) {
@@ -359,8 +369,4 @@ public class SoffitUtil {
 		}
 		return stripped;
 	}
-}
-
-enum ParseEndState {
-	EOS, SoffitFooter
 }
