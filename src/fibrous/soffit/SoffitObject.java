@@ -32,25 +32,26 @@ public class SoffitObject {
 	
 	/**
 	 * Returns the first instance of an object with a name that matches objectName.
-	 * Returns null if the object cannot be found.
+	 * Throws a {@link SoffitException} if no matching objects are found.
 	 * @param objectName
 	 * @return
 	 */
 	public SoffitObject getObject(String objectName) {
+		
 		for(int i = 0; i < objects.size(); i++) {
 			if(objects.get(i).getName().compareTo(objectName) == 0) {
 				return objects.get(i);
 			}
 		}
 		
-		return null;
+		throw new SoffitException("SOFFIT object \"" + toString() + "/" + objectName + "\" cannot be found.");
 	}
 	
 	
 	
 	/**
 	 * Returns the first instance of a field with a name that matches fieldName.
-	 * Returns null if the object cannot be found.
+	 * Throws a {@link SoffitException} if no matching fields are found.
 	 * @param fieldName
 	 * @return
 	 */
@@ -61,12 +62,12 @@ public class SoffitObject {
 			}
 		}
 		
-		return null;
+		throw new SoffitException("SOFFIT field \"" + toString() + "/" + fieldName + "\" cannot be found.");
 	}
 	
 	/**
 	 * Returns a LinkedList containing all objects with a name matching objectsName.
-	 * Returns null if no object are found.
+	 * Returns an empty linked list if no objects are found.
 	 * @param objectsName
 	 * @return
 	 */
@@ -79,16 +80,13 @@ public class SoffitObject {
 				foundObjects.add(objects.get(i));
 			}
 		}
-		
-		if(foundObjects.isEmpty())
-			return null;
-		else
-			return foundObjects;
+
+		return foundObjects;
 	}
 	
 	/**
 	 * Returns a LinkedList containing all objects of a type matching objectsType.
-	 * Returns null if no object are found.
+	 * Returns an empty LinkedList if no matching objects are found.
 	 * @param objectsName
 	 * @return
 	 */
@@ -102,10 +100,7 @@ public class SoffitObject {
 			}
 		}
 		
-		if(foundObjects.isEmpty())
-			return null;
-		else
-			return foundObjects;
+		return foundObjects;
 	}
 	
 	/**
@@ -175,6 +170,33 @@ public class SoffitObject {
 	 */
 	public boolean isRoot() {
 		return (level == -1);
+	}
+	
+	/**
+	 * Returns this objects ancestral relation by name, reaching back towards the root.
+	 * Each object is separated by a forward slash (/).
+	 * If an object is unnamed/anonymous, then the object type is substituted for the object name, and it is annotated as ("anon)".
+	 */
+	@Override
+	public String toString() {
+		String path;
+		String tempPath;
+		
+		if(name == null)
+			tempPath = "(anon)_" + type;
+		else
+			tempPath = name;
+		
+		if(parent != null) {
+			if(parent.isRoot())
+				path = name;
+			else
+				path = parent.toString() + "/" + tempPath;
+		} else {
+			path = "";
+		}
+		
+		return path;
 	}
 	
 	protected void setParent(SoffitObject parent) {

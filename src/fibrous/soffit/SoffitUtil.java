@@ -20,25 +20,20 @@ public class SoffitUtil {
 	public static final String SOFFIT_START = "__SoffitStart";
 	public static final String SOFFIT_END = "__SoffitEnd";
 	
-	public static void main(String[]args) throws Exception {
-		SoffitObject root = SoffitUtil.ReadStream(new FileInputStream(new File("input.soffit")));
-		SoffitUtil.WriteStream(root, new FileOutputStream(new File("output.soffit")));
-	}
-	
 	/**
 	 * Parses an {@link InputStream} as a root SOFFIT object.
 	 * @param stream
 	 * @return The SOFFIT root object as parsed from the InputStream.
-	 * @throws Exception
+	 * @throws SoffitException
 	 */
-	public static SoffitObject ReadStream(InputStream stream) throws Exception {
+	public static SoffitObject ReadStream(InputStream stream) throws SoffitException {
 		Scanner scanner = new Scanner(stream);
 		SoffitObject root = new SoffitObject(null, null);
 		
 		//Look for __SoffitStart first
 		String header = getLine(scanner);
 		if(header.compareTo(SOFFIT_START) != 0)
-			throw new Exception("SOFFIT header not found.");
+			throw new SoffitException("SOFFIT header not found.");
 		
 		parseObject(scanner, root);
 		
@@ -176,7 +171,7 @@ public class SoffitUtil {
 		return lineBytes;
 	}
 	
-	private static void parseObject(Scanner scanner, SoffitObject parent) throws Exception {
+	private static void parseObject(Scanner scanner, SoffitObject parent) throws SoffitException {
 		
 		while(true) {
 			
@@ -187,7 +182,7 @@ public class SoffitUtil {
 			line = getLine(scanner);
 			//If we didn't get anything, then break out.
 			if(line == null)
-				throw new Exception("Incomplete SOFFIT stream.");		
+				throw new SoffitException("Incomplete SOFFIT stream.");		
 			
 			ArrayList<String> tokens = getLineTokens(line);
 			
@@ -199,7 +194,7 @@ public class SoffitUtil {
 			if(tokens.get(0).compareTo(SOFFIT_END) == 0) {
 				//Check to see if it's possible to correctly end the stream at this point.
 				if(!parent.isRoot())
-					throw new Exception("SOFFIT footer encountered in non-root object");
+					throw new SoffitException("SOFFIT footer encountered in non-root object");
 				
 				break;
 			}
@@ -227,7 +222,7 @@ public class SoffitUtil {
 			
 			//Check for problems
 			if(!isField && !isObject)
-				throw new Exception("Malformed SOFFIT stream.");
+				throw new SoffitException("Malformed SOFFIT stream.");
 			
 		}
 	}
