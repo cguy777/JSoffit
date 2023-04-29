@@ -84,9 +84,9 @@ public class SoffitField {
 	 * @param parent
 	 */
 	protected void calcNestingLevel(SoffitObject parent) {
-		if(parent != null) {
-			level++;
-			calcNestingLevel(parent.getParent());
-		}
+		if(parent == null)
+			level = 0;
+		else			
+			level = parent.getNestedLevel() + 1;
 	}
 }

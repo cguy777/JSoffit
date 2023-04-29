@@ -245,6 +245,13 @@ public class SoffitObject {
 	 * @param parent
 	 */
 	protected void calcNestingLevel(SoffitObject parent) {
+		
+		if(parent == null)
+			level = 0;
+		else
+			level = parent.getNestedLevel() + 1;
+		
+		/*
 		//Calculate for yourself first
 		if(parent != null) {
 			level++;
@@ -259,5 +266,6 @@ public class SoffitObject {
 		for(SoffitField childField : fields) {
 			childField.calcNestingLevel(parent);
 		}
+		*/
 	}
 }
