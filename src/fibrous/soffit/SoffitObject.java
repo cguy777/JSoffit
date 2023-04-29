@@ -250,22 +250,5 @@ public class SoffitObject {
 			level = 0;
 		else
 			level = parent.getNestedLevel() + 1;
-		
-		/*
-		//Calculate for yourself first
-		if(parent != null) {
-			level++;
-			calcNestingLevel(parent.getParent());
-		}
-		
-		//Calculate for your children next
-		for(SoffitObject childObject : objects) {
-			childObject.calcNestingLevel(parent);
-		}
-		
-		for(SoffitField childField : fields) {
-			childField.calcNestingLevel(parent);
-		}
-		*/
 	}
 }
