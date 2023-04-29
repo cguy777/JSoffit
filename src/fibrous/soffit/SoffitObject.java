@@ -14,6 +14,11 @@ public class SoffitObject {
 	
 	private int level = -1;
 	
+	/**
+	 * Constructs a SoffitObject with a specified type and name.
+	 * @param type
+	 * @param name
+	 */
 	public SoffitObject(String type, String name) {
 		this.type = type;
 		this.name = name;
@@ -22,16 +27,26 @@ public class SoffitObject {
 		fields = new LinkedList<>();
 	}
 	
+	/**
+	 * Returns the type of this object.
+	 * @return
+	 */
 	public String getType() {
 		return type;
 	}
 	
+	/**
+	 * Returns the name of this object.
+	 * @return
+	 */
 	public String getName() {
 		return name;
 	}
 	
 	/**
 	 * Returns the first instance of an object with a name that matches objectName.
+	 * According to SOFFIT conventions, multiple SoffitObjects may be named the same.
+	 * Only the first instance is returned in this case.
 	 * Throws a {@link SoffitException} if no matching objects are found.
 	 * @param objectName
 	 * @return
@@ -51,6 +66,8 @@ public class SoffitObject {
 	
 	/**
 	 * Returns the first instance of a field with a name that matches fieldName.
+	 * According to SOFFIT conventions, multiple SoffitFields may be named the same.
+	 * Only the first instance is returned in this case.
 	 * Throws a {@link SoffitException} if no matching fields are found.
 	 * @param fieldName
 	 * @return
@@ -67,6 +84,7 @@ public class SoffitObject {
 	
 	/**
 	 * Returns a LinkedList containing all objects with a name matching objectsName.
+	 * According to SOFFIT conventions, multiple SoffitObjects may be named the same.
 	 * Returns an empty linked list if no objects are found.
 	 * @param objectsName
 	 * @return
@@ -104,7 +122,8 @@ public class SoffitObject {
 	}
 	
 	/**
-	 * Returns a LinkedList containing all objects within this object.
+	 * Returns a LinkedList containing all SoffitObjects within this object.
+	 * Returns an empty LinkedList if this object contains no other objects.
 	 * @return
 	 */
 	public LinkedList<SoffitObject> getAllObjects() {
@@ -112,7 +131,8 @@ public class SoffitObject {
 	}
 	
 	/**
-	 * Returns a LinkedList containing all fields within this object.
+	 * Returns a LinkedList containing all SoffitFields within this object.
+	 * Returns an empty LinkedList if this object contains no SoffitFields.
 	 * @return
 	 */
 	public LinkedList<SoffitField> getAllFields() {
@@ -138,7 +158,7 @@ public class SoffitObject {
 	}
 	
 	/**
-	 * Returns true if this object contains more objects.
+	 * Returns true if this object contains objects.
 	 * @return
 	 */
 	public boolean containsObjects() {
@@ -181,9 +201,11 @@ public class SoffitObject {
 	}
 	
 	/**
-	 * Returns this objects ancestral relation by name, reaching back towards the root.
+	 * Returns this objects fully qualified name.
+	 * I.e, it lists this objects ancestry.
 	 * Each object is separated by a forward slash (/).
-	 * If an object is unnamed/anonymous, then the object type is substituted for the object name, and it is annotated as ("anon)".
+	 * If an object is unnamed/anonymous, then the object type is substituted for the object name, and it is annotated as "(anon)".
+	 * According to SOFFIT conventions, multiple objects may have the same name and type, so this may not be useful in some circumstances.
 	 */
 	@Override
 	public String toString() {
@@ -207,11 +229,21 @@ public class SoffitObject {
 		return path;
 	}
 	
+	/**
+	 * Sets the parent of this SoffitObject.
+	 * It is really only called internally when adding an object to another object.
+	 * @param parent
+	 */
 	protected void setParent(SoffitObject parent) {
 		this.parent = parent;
 		calcNestingLevel(this.parent);
 	}
 	
+	/**
+	 * Calculates how deeply nested this field is.
+	 * It is really only called internally when adding a field to another object.
+	 * @param parent
+	 */
 	protected void calcNestingLevel(SoffitObject parent) {
 		//Calculate for yourself first
 		if(parent != null) {
