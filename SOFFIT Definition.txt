@@ -41,6 +41,7 @@ Vehicle "My Vehicle" {
 		Date "12 April 2019"
 		Description "Swapped front tires with rear tires."
 	}
+}
 __SoffitEnd
 
 
