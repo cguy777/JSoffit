@@ -5,6 +5,6 @@
  * @author noahm
  *
  */
-module SOFFIT {
+module JSoffit {
 	exports fibrous.soffit;
 }
