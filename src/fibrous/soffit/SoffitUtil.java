@@ -11,9 +11,9 @@ import java.util.ArrayList;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
 
-//******************************************************
-//String Object Format For Information Transfer (SOFFIT)
-//******************************************************
+//*********************************************************
+//String Object Framework For Information Transfer (SOFFIT)
+//*********************************************************
 
 public class SoffitUtil {
 	
