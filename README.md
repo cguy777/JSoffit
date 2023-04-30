@@ -1,2 +1,2 @@
 # SOFFIT
-SOFFIT (String Object Format For Information Transfer)
+SOFFIT (String Object Framework For Information Transfer)
