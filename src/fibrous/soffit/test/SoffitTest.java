@@ -1,6 +1,5 @@
 package fibrous.soffit.test;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -14,7 +13,9 @@ public class SoffitTest {
 		SoffitObject root = SoffitUtil.ReadStream(new FileInputStream("input.soffit"));
 		SoffitUtil.WriteStream(root, new FileOutputStream("output.soffit"));
 		
-		System.out.println(root.getAllObjects().get(0).getAllFields().get(0).getName() + " " + root.getAllObjects().get(0).getAllFields().get(0).getValue());
+		SoffitField make = root.getAllObjects().get(0).getAllFields().get(0);
+		
+		System.out.println(make);
 	}
 	
 	private static void printAllChildren(SoffitObject root) {
