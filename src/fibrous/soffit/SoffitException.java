@@ -7,11 +7,11 @@ package fibrous.soffit;
  *
  */
 public class SoffitException extends RuntimeException {
-	SoffitException() {
+	public SoffitException() {
 		super();
 	}
 	
-	SoffitException(String message) {
+	public SoffitException(String message) {
 		super(message);
 	}
 	
@@ -20,7 +20,16 @@ public class SoffitException extends RuntimeException {
 	 * @param message
 	 * @param soffitLineNumber The line number of the stream where the issue was encountered.
 	 */
-	SoffitException(String message, int soffitLineNumber) {
+	public SoffitException(String message, int soffitLineNumber) {
 		super("SOFFIT Stream, line " + String.valueOf(soffitLineNumber) + ": " + message);
+	}
+	
+	/**
+	 * 
+	 * @param message
+	 * @param soffitLineNumber The line number of the stream where the issue was encountered.
+	 */
+	public SoffitException(SoffitException se, int soffitLineNumber) {
+		super("SOFFIT Stream, line " + String.valueOf(soffitLineNumber) + ": " + se.getMessage());
 	}
 }

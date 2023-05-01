@@ -11,7 +11,10 @@ import fibrous.soffit.SoffitUtil;
 
 public class SoffitTest {
 	public static void main(String[]args) throws FileNotFoundException, Exception {
-		SoffitUtil.WriteStream(SoffitUtil.ReadStream(new FileInputStream("input.soffit")), new FileOutputStream("output.soffit"));
+		SoffitObject root = SoffitUtil.ReadStream(new FileInputStream("input.soffit"));
+		SoffitUtil.WriteStream(root, new FileOutputStream("output.soffit"));
+		
+		System.out.println(root.getAllObjects().get(0).getAllFields().get(0).getName() + " " + root.getAllObjects().get(0).getAllFields().get(0).getValue());
 	}
 	
 	private static void printAllChildren(SoffitObject root) {

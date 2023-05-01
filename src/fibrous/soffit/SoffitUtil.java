@@ -1,9 +1,6 @@
 package fibrous.soffit;
 
 import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -19,6 +16,7 @@ public class SoffitUtil {
 	
 	public static final String SOFFIT_START = "__SoffitStart";
 	public static final String SOFFIT_END = "__SoffitEnd";
+	public static final char ESCAPE_SEQUENCE = '\\';
 	
 	private static int lineNumber = 0;
 	
@@ -79,28 +77,14 @@ public class SoffitUtil {
 		byte[] lineBytes = null;
 		
 		//Write the fields first
-		for(int i = 0; i < object.getAllFields().size(); i++) {
+		for(int i = 0; i < object.getAllFields().size(); i++) {			
+			//Write the line containing a field...
 			
 			SoffitField field = object.getAllFields().get(i);
-			line = "";
 			
-			//Set indentation
-			for(int i2 = 0; i2 < field.getNestingLevel(); i2++) {
-				line += "\t";
-			}
-			
-			//Write field information
-			line += field.getName();
-			line += " \"";
-			line += field.getValue();
-			line += "\"\n";
-			
-			//Convert to byte array.
-			lineBytes = convertLineToBytes(line);
-			
-			//Write the line containing a field...
 			try {
-				bStream.write(lineBytes);
+				bStream.write(convertFieldToLineBytes(field));
+				bStream.flush();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -110,29 +94,11 @@ public class SoffitUtil {
 		for(int i = 0; i < object.getAllObjects().size(); i++) {
 			
 			SoffitObject currentObject = object.getAllObjects().get(i);
-			line = "";
-			
-			//Set indentation
-			for(int i2 = 0; i2 < currentObject.getNestedLevel(); i2++) {
-				line += "\t";
-			}
-			
-			//Write object declaration
-			line += currentObject.getType();
-			if(currentObject.getName() != null) {
-				line += " \"";
-				line += currentObject.getName();
-				line += "\"";
-			}
-			
-			line += " {\n";
-			
-			//Convert to byte array.
-			lineBytes = convertLineToBytes(line);
-			
 			//Write the line the object declaration...
+			
 			try {
-				bStream.write(lineBytes);
+				bStream.write(convertObjectDeclarationToLineBytes(currentObject));
+				bStream.flush();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -166,14 +132,15 @@ public class SoffitUtil {
 	}
 	
 	private static byte[] convertLineToBytes(String line) {
-		char[] lineChars = line.toCharArray();
-		byte[] lineBytes = new byte[line.toCharArray().length];
-		for(int i = 0; i < lineChars.length; i++) {
-			lineBytes[i] = (byte) lineChars[i];
+		byte[] lineCharArray = new byte[line.length()];
+		//Convert to byte array.
+		for(int i = 0; i < line.length(); i++) {
+			lineCharArray[i] = (byte) line.charAt(i);
 		}
-		
-		return lineBytes;
+
+		return lineCharArray;
 	}
+	
 	
 	private static void parseObject(Scanner scanner, SoffitObject parent) throws SoffitException {
 		
@@ -211,17 +178,38 @@ public class SoffitUtil {
 			isObject = isObject(tokens);
 			
 			if(isField) {
-				parent.add(new SoffitField(tokens.get(0), stripQuotations(tokens.get(1))));
+				String name = tokens.get(0);
+				
+				String value = stripQuotations(tokens.get(1));
+				
+				//Check for proper escape sequences
+				try {
+					value = convertFromEscapeSequence(value);
+				} catch (SoffitException e) {
+					throw new SoffitException(e, lineNumber);
+				}
+				
+				parent.add(new SoffitField(name, value));
 			}
 			
 			if(isObject) {
-				
 				SoffitObject object;
 				
+				String type = tokens.get(0);
+				
 				if(tokens.size() == 2) {
-					object = new SoffitObject(tokens.get(0), null);
+					object = new SoffitObject(type, null);
 				} else {
-					object = new SoffitObject(tokens.get(0), stripQuotations(tokens.get(1)));
+					String name = stripQuotations(tokens.get(1));
+					
+					//Check for proper escape sequences
+					try {
+						name = convertFromEscapeSequence(name);
+					} catch (SoffitException e) {
+						throw new SoffitException(e, lineNumber);
+					}
+					
+					object = new SoffitObject(type, name);
 				}
 					
 				parent.add(object);
@@ -248,11 +236,23 @@ public class SoffitUtil {
 			while(true) {
 				nextToken = "";
 				
+				//Look for quotes
 				if(line.charAt(mark) == '"') {
+					
 					nextToken += line.charAt(mark);
 					mark++;
 					for(int i = mark;; i++) {
 						mark++;
+						
+						//Check for escape sequence.
+						if(line.charAt(i) == '\\') {
+							if(line.charAt(i + 1) == '"') {
+								nextToken += '"';
+								mark++;
+								i++;
+								continue;
+							}
+						}
 						
 						if(line.charAt(i) == '"') {
 							nextToken += line.charAt(i);
@@ -360,6 +360,133 @@ public class SoffitUtil {
 			if(line != null)
 				return line;
 		}
+	}
+	
+	private static byte[] convertFieldToLineBytes(SoffitField field) {
+		
+		String name = field.getName();
+		String value = field.getValue();
+		
+		String line = "";
+		
+		//Set indentation
+		for(int i = 0; i < field.getNestingLevel(); i++) {
+			line += '\t';
+		}
+		
+		//Name
+		for(int i = 0; i < name.length(); i++) {
+			line += name.charAt(i);
+		}
+		line += ' ';
+		
+		//Value
+		line += '"';
+		value = convertToEscapeSequence(value);
+		for(int i = 0; i < value.length(); i++) {
+			//Add all normal characters
+			line += value.charAt(i);
+		}
+		line += "\"\n";
+		
+		return convertLineToBytes(line);
+	}
+	
+	private static byte[] convertObjectDeclarationToLineBytes(SoffitObject object) {		
+		String type = object.getType();
+		String name = object.getName();
+		
+		String line = "";
+		
+		//Set indentation
+		for(int i = 0; i < object.getNestedLevel(); i++) {
+			line += '\t';
+		}
+		
+		//Type
+		for(int i = 0; i < type.length(); i++) {
+			line += type.charAt(i);
+		}
+		line += " ";
+		
+		//name
+		if(name != null) {
+			line += '"';
+			name = convertToEscapeSequence(name);
+			for(int i = 0; i < name.length(); i++) {
+				//Add all normal characters
+				line += name.charAt(i);
+			}
+			line += "\" ";
+		}
+		line += "{\n";
+		
+		return convertLineToBytes(line);
+	}
+	
+	private static String convertFromEscapeSequence(String s) {
+		
+		String convertedString = "";
+		
+		for(int i = 0; i < s.length(); i++) {
+			//Look for escape character
+			if(s.charAt(i) == '\\') {
+				
+				//Double quote
+				if(s.charAt(i + 1) == '"') {
+					convertedString += '"';
+					i++;
+					continue;
+				}
+				
+				//Newline
+				if(s.charAt(i + 1) == 'n') {
+					convertedString += '\n';
+					i++;
+					continue;
+				}
+				
+				//Backslash
+				if(s.charAt(i + 1) == '\\') {
+					convertedString += '\\';
+					i++;
+					continue;
+				}
+				
+				throw new SoffitException("Invalid SOFFIT escape sequence");
+			}
+			
+			//Add all normal characters
+			convertedString += s.charAt(i);
+		}
+		
+		return convertedString;
+	}
+	
+	private static String convertToEscapeSequence(String s) {
+		String convertedString = "";
+		for(int i = 0; i < s.length(); i++) {
+			//Double quote correction
+			if(s.charAt(i) == '"') {
+				convertedString += "\\\"";
+				continue;
+			}
+			//Newline correction
+			if(s.charAt(i) == '\n') {
+				convertedString += "\\n";
+				continue;
+			}
+			//Backslash correction
+			if(s.charAt(i) == ESCAPE_SEQUENCE) {
+				convertedString += "\\\\";
+				continue;
+			}
+			
+			//Add all normal characters
+			convertedString += s.charAt(i);
+		}
+		
+		return convertedString;
 	}
 	
 	private static String stripQuotations(String s) {
