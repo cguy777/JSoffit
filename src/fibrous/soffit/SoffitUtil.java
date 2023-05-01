@@ -12,6 +12,11 @@ import java.util.Scanner;
 //String Object Framework For Information Transfer (SOFFIT)
 //*********************************************************
 
+/**
+ * This class provides your basic stream IO processes for SOFFIT.
+ * @author noahm
+ *
+ */
 public class SoffitUtil {
 	
 	public static final String SOFFIT_START = "__SoffitStart";
@@ -129,28 +134,14 @@ public class SoffitUtil {
 				e.printStackTrace();
 			}
 		}
-	}
-	
-	private static byte[] convertLineToBytes(String line) {
-		byte[] lineCharArray = new byte[line.length()];
-		//Convert to byte array.
-		for(int i = 0; i < line.length(); i++) {
-			lineCharArray[i] = (byte) line.charAt(i);
-		}
-
-		return lineCharArray;
-	}
-	
+	}	
 	
 	private static void parseObject(Scanner scanner, SoffitObject parent) throws SoffitException {
-		
 		while(true) {
-			
 			boolean isObject = false;
 			boolean isField = false;
-			String line;
+			String line = getLine(scanner);
 			
-			line = getLine(scanner);
 			//If we didn't get anything, then break out.
 			if(line == null)
 				throw new SoffitException("Incomplete SOFFIT stream.");
@@ -179,7 +170,6 @@ public class SoffitUtil {
 			
 			if(isField) {
 				String name = tokens.get(0);
-				
 				String value = stripQuotations(tokens.get(1));
 				
 				//Check for proper escape sequences
@@ -188,13 +178,11 @@ public class SoffitUtil {
 				} catch (SoffitException e) {
 					throw new SoffitException(e, lineNumber);
 				}
-				
 				parent.add(new SoffitField(name, value));
 			}
 			
 			if(isObject) {
 				SoffitObject object;
-				
 				String type = tokens.get(0);
 				
 				if(tokens.size() == 2) {
@@ -208,7 +196,6 @@ public class SoffitUtil {
 					} catch (SoffitException e) {
 						throw new SoffitException(e, lineNumber);
 					}
-					
 					object = new SoffitObject(type, name);
 				}
 					
@@ -219,14 +206,11 @@ public class SoffitUtil {
 			//Check for problems
 			if(!isField && !isObject)
 				throw new SoffitException("SOFFIT syntax error", lineNumber);
-			
 		}
 	}
 	
 	private static ArrayList<String> getLineTokens(String s) {
-		
 		String line = s.strip();
-		
 		ArrayList<String> tokens = new ArrayList<>();
 		
 		int mark = 0;
@@ -286,55 +270,6 @@ public class SoffitUtil {
 		}
 		
 		return tokens;
-	}
-	
-	private static boolean isField(ArrayList<String> tokens) {
-		if(tokens.size() != 2)
-			return false;
-		
-		String lastToken = tokens.get(1);
-		
-		//Bracket indicates object
-		if(lastToken.compareTo("{") == 0)
-			return false;
-		
-		//Check for quotes
-		if(lastToken.charAt(0) == '"' && lastToken.charAt(lastToken.length() - 1) == '"')
-			return true;
-		
-		
-		//default determination of false
-		return false;
-	}
-	
-	private static boolean isObject(ArrayList<String> tokens) {
-		
-		//Check requirements for object without a name
-		
-		if(tokens.size() == 2) {
-			//Check for trailing bracket
-			//Bracket is required to be an object
-			String lastToken = tokens.get(1);
-			if(lastToken.compareTo("{") == 0)
-				return true;
-		}
-		
-		//Check requirements for object with a name
-		if(tokens.size() == 3) {
-			String token2 = tokens.get(1);
-			String token3 = tokens.get(2);
-			
-			//Verify enclosing quotes for name, if a name is specified
-			if(token2.charAt(0) == '"' && token2.charAt(token2.length() - 1) == '"') {
-				
-				//Check for trailing bracket
-				if(token3.compareTo("{") == 0)
-					return true;
-			}
-		}		
-		
-		//default determination of false
-		return false;
 	}
 	
 	private static String getLine(Scanner scanner) {
@@ -495,5 +430,62 @@ public class SoffitUtil {
 			stripped += s.charAt(i + 1);
 		}
 		return stripped;
+	}
+	
+	private static boolean isField(ArrayList<String> tokens) {
+		if(tokens.size() != 2)
+			return false;
+		
+		String lastToken = tokens.get(1);
+		
+		//Bracket indicates object
+		if(lastToken.compareTo("{") == 0)
+			return false;
+		
+		//Check for quotes
+		if(lastToken.charAt(0) == '"' && lastToken.charAt(lastToken.length() - 1) == '"')
+			return true;
+		
+		//default determination of false
+		return false;
+	}
+	
+	private static boolean isObject(ArrayList<String> tokens) {
+		
+		//Check requirements for object without a name
+		if(tokens.size() == 2) {
+			//Check for trailing bracket
+			//Bracket is required to be an object
+			String lastToken = tokens.get(1);
+			if(lastToken.compareTo("{") == 0)
+				return true;
+		}
+		
+		//Check requirements for object with a name
+		if(tokens.size() == 3) {
+			String token2 = tokens.get(1);
+			String token3 = tokens.get(2);
+			
+			//Verify enclosing quotes for name, if a name is specified
+			if(token2.charAt(0) == '"' && token2.charAt(token2.length() - 1) == '"') {
+				
+				//Check for trailing bracket
+				if(token3.compareTo("{") == 0)
+					return true;
+			}
+		}		
+		
+		//default determination of false
+		return false;
+	}
+
+	private static byte[] convertLineToBytes(String line) {
+		byte[] lineCharArray = new byte[line.length()];
+		//Convert to byte array.
+		for(int i = 0; i < line.length(); i++) {
+			lineCharArray[i] = (byte) line.charAt(i);
+		}
+	
+		return lineCharArray;
 	}
 }
