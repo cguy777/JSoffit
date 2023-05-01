@@ -13,9 +13,7 @@ public class SoffitTest {
 		SoffitObject root = SoffitUtil.ReadStream(new FileInputStream("input.soffit"));
 		SoffitUtil.WriteStream(root, new FileOutputStream("output.soffit"));
 		
-		SoffitField make = root.getAllObjects().get(0).getAllFields().get(0);
-		
-		System.out.println(make);
+		//System.out.println(root.getAllFields().get(0));
 	}
 	
 	private static void printAllChildren(SoffitObject root) {
