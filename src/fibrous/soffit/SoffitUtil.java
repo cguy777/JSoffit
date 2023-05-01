@@ -205,7 +205,7 @@ public class SoffitUtil {
 			
 			//Check for problems
 			if(!isField && !isObject)
-				throw new SoffitException("SOFFIT syntax error", lineNumber);
+				throw new SoffitException("SOFFIT syntax error.", lineNumber);
 		}
 	}
 	

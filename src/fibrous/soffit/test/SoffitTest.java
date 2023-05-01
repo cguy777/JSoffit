@@ -13,7 +13,7 @@ public class SoffitTest {
 		SoffitObject root = SoffitUtil.ReadStream(new FileInputStream("input.soffit"));
 		SoffitUtil.WriteStream(root, new FileOutputStream("output.soffit"));
 		
-		//System.out.println(root.getAllFields().get(0));
+		System.out.println(root.getField("EscSeqTest"));
 	}
 	
 	private static void printAllChildren(SoffitObject root) {
