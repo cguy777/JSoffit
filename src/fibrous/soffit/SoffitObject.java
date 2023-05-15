@@ -47,7 +47,7 @@ public class SoffitObject {
 	 * Returns the first instance of an object with a name that matches objectName.
 	 * According to SOFFIT conventions, multiple SoffitObjects may be named the same.
 	 * Only the first instance is returned in this case.
-	 * Throws a {@link SoffitException} if no matching objects are found.
+	 * Returns null if no matching object is found.
 	 * @param objectName
 	 * @return
 	 */
@@ -59,7 +59,7 @@ public class SoffitObject {
 			}
 		}
 		
-		throw new SoffitException("SOFFIT object \"" + toString() + "/" + objectName + "\" cannot be found.");
+		return null;
 	}
 	
 	
@@ -68,7 +68,7 @@ public class SoffitObject {
 	 * Returns the first instance of a field with a name that matches fieldName.
 	 * According to SOFFIT conventions, multiple SoffitFields may be named the same.
 	 * Only the first instance is returned in this case.
-	 * Throws a {@link SoffitException} if no matching fields are found.
+	 * Returns null if no matching field is found.
 	 * @param fieldName
 	 * @return
 	 */
@@ -79,7 +79,7 @@ public class SoffitObject {
 			}
 		}
 		
-		throw new SoffitException("SOFFIT field \"" + toString() + "/" + fieldName + "\" cannot be found.");
+		return null;
 	}
 	
 	/**
