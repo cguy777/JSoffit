@@ -65,7 +65,12 @@ public class SoffitUtil {
 			e.printStackTrace();
 		}
 		
-		writeObjects(root, bStream);
+		try {
+			writeObjects(root, bStream);
+			bStream.flush();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 		
 		//Write footer
 		lineBytes = convertLineToBytes(SOFFIT_END);
@@ -77,6 +82,9 @@ public class SoffitUtil {
 		}
 	}
 	
+	/**
+	 * Writes fields first, and then every object recursively.
+	 */
 	private static void writeObjects(SoffitObject object, BufferedOutputStream bStream) {
 		String line = null;
 		byte[] lineBytes = null;
@@ -136,6 +144,10 @@ public class SoffitUtil {
 		}
 	}	
 	
+	/**
+	 * Parses and interprets SoffitObjects/Fields from a scanner.
+	 * This functions recursively.
+	 */
 	private static void parseObject(Scanner scanner, SoffitObject parent) throws SoffitException {
 		while(true) {
 			boolean isObject = false;
@@ -209,6 +221,9 @@ public class SoffitUtil {
 		}
 	}
 	
+	/**
+	 * Internal to the parseObject method.
+	 */
 	private static ArrayList<String> getLineTokens(String s) {
 		String line = s.strip();
 		ArrayList<String> tokens = new ArrayList<>();
@@ -297,6 +312,9 @@ public class SoffitUtil {
 		}
 	}
 	
+	/**
+	 * Internal to the writeObject method.
+	 */
 	private static byte[] convertFieldToLineBytes(SoffitField field) {
 		
 		String name = field.getName();
@@ -327,6 +345,9 @@ public class SoffitUtil {
 		return convertLineToBytes(line);
 	}
 	
+	/**
+	 * Internal to the writeObjects method.
+	 */
 	private static byte[] convertObjectDeclarationToLineBytes(SoffitObject object) {		
 		String type = object.getType();
 		String name = object.getName();
@@ -359,6 +380,9 @@ public class SoffitUtil {
 		return convertLineToBytes(line);
 	}
 	
+	/**
+	 * Internal to the parseObject method.
+	 */
 	private static String convertFromEscapeSequence(String s) {
 		
 		String convertedString = "";

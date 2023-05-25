@@ -52,13 +52,11 @@ public class SoffitObject {
 	 * @return
 	 */
 	public SoffitObject getObject(String objectName) {
-		
 		for(int i = 0; i < objects.size(); i++) {
 			if(objects.get(i).getName().compareTo(objectName) == 0) {
 				return objects.get(i);
 			}
 		}
-		
 		return null;
 	}
 	
@@ -78,8 +76,27 @@ public class SoffitObject {
 				return fields.get(i);
 			}
 		}
-		
 		return null;
+	}
+	
+	/**
+	 * Returns a LinkedList containing all fields with a name matching fieldName.
+	 * According to SOFFIT conventions, multiple SoffitFields may be named the same.
+	 * Returns an empty linked list if no objects are found.
+	 * @param fieldName
+	 * @return
+	 */
+	public LinkedList<SoffitField> getFieldsByName(String fieldName) {
+		
+		LinkedList<SoffitField> foundFields = new LinkedList<>();
+		
+		for(int i = 0; i < fields.size(); i++) {
+			if(fields.get(i).getName().compareTo(fieldName) == 0) {
+				foundFields.add(fields.get(i));
+			}
+		}
+
+		return foundFields;
 	}
 	
 	/**
@@ -231,7 +248,7 @@ public class SoffitObject {
 	
 	/**
 	 * Sets the parent of this SoffitObject.
-	 * It is really only called internally when adding an object to another object.
+	 * This is really only called internally when adding an object to another object.
 	 * @param parent
 	 */
 	protected void setParent(SoffitObject parent) {
@@ -241,7 +258,7 @@ public class SoffitObject {
 	
 	/**
 	 * Calculates how deeply nested this field is.
-	 * It is really only called internally when adding a field to another object.
+	 * This is really only called internally when adding a field to another object.
 	 * @param parent
 	 */
 	protected void calcNestingLevel(SoffitObject parent) {
