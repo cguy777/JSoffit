@@ -91,8 +91,6 @@ public class SoffitObject {
 		return null;
 	}
 	
-	
-	
 	/**
 	 * Returns the first instance of a field with a name that matches fieldName.
 	 * According to SOFFIT conventions, multiple SoffitFields may be named the same.
