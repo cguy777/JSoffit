@@ -292,9 +292,22 @@ public class SoffitObject {
 	 */
 	protected void calcNestingLevel(SoffitObject parent) {
 		
+		//I would like to change this in the future as this operation could get slow with large trees.
+		//It runs through everything attached to it and its children whenever something is added to itself.
+		//It's a necessary evil at this point though.
+		
 		if(parent == null)
 			level = 0;
-		else
+		else {
 			level = parent.getNestedLevel() + 1;
+			
+			//Calculate child field nesting level
+			for(SoffitField childFields : fields)
+				childFields.calcNestingLevel(this);
+			
+			//Calculate child object nesting level
+			for(SoffitObject childObjects : objects)
+				childObjects.calcNestingLevel(this);
+		}
 	}
 }
