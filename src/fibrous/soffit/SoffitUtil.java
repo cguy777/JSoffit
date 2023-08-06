@@ -180,7 +180,7 @@ public class SoffitUtil {
 	 * Parses and interprets SoffitObjects/Fields from a scanner.
 	 * This functions recursively.
 	 */
-	/*
+	
 	private static void parseObject(Scanner scanner, SoffitObject parent) throws SoffitException {
 		Stack<SoffitObject> stack = new Stack<>();
 		stack.push(parent);
@@ -247,82 +247,6 @@ public class SoffitUtil {
 			}
 		}
 	}
-	*/
-	
-	
-	private static void parseObject(Scanner scanner, SoffitObject parent) throws SoffitException {
-		while(true) {
-			boolean isObject = false;
-			boolean isField = false;
-			String line = getLine(scanner);
-			
-			//If we didn't get anything, then break out.
-			if(line == null)
-				throw new SoffitException("Incomplete SOFFIT stream.");
-			
-			ArrayList<String> tokens = getLineTokens(line);
-			
-			//Check for end of object/closing curly bracket
-			if(tokens.size() == 1 && tokens.get(0).compareTo("}") == 0) {
-				if(!parent.isRoot())
-					break;
-				else
-					throw new SoffitException("SOFFIT stream contained to many closing brackets.", lineNumber);
-			}
-			
-			//Check for footer
-			if(tokens.get(0).compareTo(SOFFIT_END) == 0) {
-				//Check to see if it's possible to correctly end the stream at this point.
-				if(!parent.isRoot())
-					throw new SoffitException("SOFFIT footer encountered in non-root object.", lineNumber);
-				
-				break;
-			}
-			
-			isField = isField(tokens);
-			isObject = isObject(tokens);
-			
-			if(isField) {
-				String name = tokens.get(0);
-				String value = stripQuotations(tokens.get(1));
-				
-				//Check for proper escape sequences
-				try {
-					value = convertFromEscapeSequence(value);
-				} catch (SoffitException e) {
-					throw new SoffitException(e, lineNumber);
-				}
-				parent.add(new SoffitField(name, value));
-			}
-			
-			if(isObject) {
-				SoffitObject object;
-				String type = tokens.get(0);
-				
-				if(tokens.size() == 2) {
-					object = new SoffitObject(type, null);
-				} else {
-					String name = stripQuotations(tokens.get(1));
-					
-					//Check for proper escape sequences
-					try {
-						name = convertFromEscapeSequence(name);
-					} catch (SoffitException e) {
-						throw new SoffitException(e, lineNumber);
-					}
-					object = new SoffitObject(type, name);
-				}
-					
-				parent.add(object);
-				parseObject(scanner, object);
-			}
-			
-			//Check for problems
-			if(!isField && !isObject)
-				throw new SoffitException("SOFFIT syntax error.", lineNumber);
-		}
-	}
-	
 	
 	/**
 	 * Internal to the parseObject method.
