@@ -1,5 +1,5 @@
 The SOFFIT Definition
-v1.0.0
+v1.0.1
 
 1. Introduction to SOFFIT
 	SOFFIT (String Object Framework For Information Transfer) is a simple, human-readable structured data format for transferring and storing information.  It is based around the concept of objects containing only strings for data.  There are 3 core concepts with SOFFIT: The header/footer (__SoffitStart/__SoffitEnd) system, fields, and objects.  Let's start with the first.
@@ -12,10 +12,10 @@ v1.0.0
 
 	TheNameOfAField "The value of a field."
 
-The name is a single-word (meaning no whitespace) key that can be used to identify the value.  The value is textual data contained within quotations.  The value itself MUST NOT contain quotes, as this can interfere with parsing.  The value does not have to be solely textual data, but can be a number, or any other data that you want to represent.  It is up to the receiving end of the stream to know how to interpret the value.  Multiple fields CAN be named the same.  This allows flexibility, and provides a way to store data in multiple ways.  Again, it is up to the receiving end to understand how to interpret the data presented.
+The name is a single-word (meaning no whitespace) key that can be used to identify the value.  The value is textual data contained within quotations.  The value itself MUST NOT contain quotes, as this can interfere with parsing (however, there are escape sequences that allow quotes).  The value does not have to be solely textual data, but can be a number, or any other data that you want to represent.  It is up to the receiving end of the stream to know how to interpret the value.  Multiple fields CAN be named the same.  This allows flexibility, and provides a way to store data in multiple ways.  Again, it is up to the receiving end to understand how to interpret the data presented.
 
 4. Objects
-	Finally, we have objects.  SOFFIT objects are defined as a collection of fields and other objects (fields and objects are also known as an object's properties).  They consist of a type and a name (or label).  The denoting of objects is performed with curly brackets.  A syntax example for an object is show below:
+	Finally, we have objects.  SOFFIT objects are defined as a collection of fields and other objects.  They consist of a type and an optional name (or label).  The denoting of objects is performed with curly brackets.  Object names CAN contain spaces.  A syntax example for an object is show below:
 
 	ObjectType "ObjectName" {
 		FieldName "Useful information of some sort."
@@ -54,9 +54,9 @@ __SoffitEnd
 First, we see the header "__SoffitStart".  Again, this is a mandatory, and signifies the beginning of a SOFFIT stream.  Next, we have a field named "MaintenanceTracker".  MaintenanceTracker contains the value "v1.2.7".  The MaintenanceTracker field is attached to the root object.  In this example, this field would be some sort of application header, signifying the version compliance of the stream.  Next, we have the object of type "Vehicle" with the name "My Vehicle".  The next line contains a comment.  Comments start with the pound sign (#) and run to the end of the line.  Comments MUST start at the beginning of a line.  Next is the unnamed (anonymous) object of type info.  As you can see, unnamed objects can provide simple ways to group fields together.  Moving on, we have the field "Make" with the value "Ford".  All of the fields at this level should be self-explanatory.  Next, we see two objects of type "Service".  These objects indicate maintenance records.  At the end of the example we have the footer "__SoffitEnd".  Again, this footer IS MANDATORY for full SOFFIT compliance, and indicates the end of a SOFFIT stream.
 
 6. Formatting Specifications
-	Now that we have explained an example SOFFIT stream, let's continue with some additional specifications.  Indentation is not a mandatory requirement.  Indentation is only RECOMMENDED because SOFFIT streams can be saved to a file and edited by hand, and indentation makes it easier for human consumption.  A single space after each element in a line IS MANDATORY.  I.e., you need a space in-between a field name and a field value, or an object name and a starting bracket.  A space is defined as ASCII character 32, or Unicode character U+0020.  Additional vertical spacing, or lines, between properties and elements IS OPTIONAL.  A single line may only contain 1 of the following: header, footer, field, object declaration, closing bracket, or a comment.
+	Now that we have explained an example SOFFIT stream, let's continue with some additional specifications.  Indentation is not a mandatory requirement.  However, indentation is RECOMMENDED because SOFFIT streams can be saved to a file and edited by hand, and indentation makes it easier for human readability.  A single space after each element in a line IS MANDATORY.  I.e., you need a space in-between a field name and a field value, or an object name and a starting bracket.  A space is defined as ASCII character 32, or Unicode character U+0020.  Additional vertical spacing, or lines, between properties and elements IS OPTIONAL.  A single line may only contain 1 of the following: header, footer, field, object declaration, closing bracket, or a comment.
 	
 7. Escape Sequences
-	A back slash (\) is the SOFFIT escape character.  The SOFFIT escape sequences are as follows: \" (double quote), \n (newline), \\ (backslash).  Escape sequences are only valid within field values and object names.  This allows double quotes and newlines to be inserted into values.  This operation would be performed as follows:
+	A back slash (\) is the SOFFIT escape character.  The only valid SOFFIT escape sequences are as follows: \" (double quote), \n (newline), \\ (backslash).  Escape sequences are only valid within field values and object names.  This allows double quotes and newlines to be inserted into values.  It is HIGHLY DISCOURAGED to avoid using escape sequences within object names as it can create unnecessary confusion, but the functionality is provided for the sake of utmost flexibility and the strangest of unforeseen uses.  An example of escape sequences in use is as follows:
 	
 	FieldName "Some value.  \"A quote\".  A newline.\nAn oddly placed \\ backslash."
