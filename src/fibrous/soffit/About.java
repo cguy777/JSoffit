@@ -33,8 +33,8 @@ package fibrous.soffit;
 
 public class About {
 	
-	public static final String SOFFIT_VERSION_COMPLIANCE = "1.0.0";
-	public static final String LIBRARY_VERSION = "0.1.0";
+	public static final String SOFFIT_VERSION_COMPLIANCE = "1.0.1";
+	public static final String LIBRARY_VERSION = "0.1.1";
 	
 	/**
 	 * Returns the version of SOFFIT that this library is compliant with.
@@ -48,7 +48,7 @@ public class About {
 	 * Returns the version number of this JSoffit library.
 	 * @return
 	 */
-	public static String getVersion() {
+	public static String getJSoffitVersion() {
 		return LIBRARY_VERSION;
 		
 	}
