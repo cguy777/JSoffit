@@ -76,7 +76,6 @@ public class SoffitUtil {
 		
 		parseObject(scanner, root);
 		
-		scanner.close();
 		return root;
 	}
 	
