@@ -105,7 +105,7 @@ public class SoffitUtil {
 		}
 		
 		//Write footer
-		lineBytes = convertLineToBytes(SOFFIT_END);
+		lineBytes = convertLineToBytes(SOFFIT_END + "\n");
 		try {
 			bStream.write(lineBytes);
 			bStream.flush();
