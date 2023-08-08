@@ -251,7 +251,7 @@ public class SoffitUtil {
 	 * Internal to the parseObject method.
 	 */
 	private static ArrayList<String> getLineTokens(String s) {
-		String line = s.strip();
+		String line = s;
 		ArrayList<String> tokens = new ArrayList<>();
 		
 		int mark = 0;
@@ -320,6 +320,7 @@ public class SoffitUtil {
 			
 			try {
 				line = scanner.nextLine();
+				line = line.strip();
 			} catch(NoSuchElementException e) {
 				//Explicitly return null
 				return null;
