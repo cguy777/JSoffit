@@ -184,6 +184,22 @@ public class SoffitObject {
 	}
 	
 	/**
+	 * Returns a SoffitObject matching the specified type and name.
+	 * Returns null if the object is not found.
+	 * @param objectType
+	 * @param objectName
+	 * @return
+	 */
+	public SoffitObject getObjectByTypeAndName(String objectType, String objectName) {
+		for(SoffitObject currentObject : objects) {
+			if(currentObject.getType().compareTo(objectType) == 0 && currentObject.getName().compareTo(objectName) == 0)
+				return currentObject;
+		}
+		
+		return null;
+	}
+	
+	/**
 	 * Removes the first occurrence of an object with a name matching the passed String.
 	 * @param name
 	 */
