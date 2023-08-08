@@ -75,6 +75,22 @@ public class SoffitObject {
 	}
 	
 	/**
+	 * Renames this object.
+	 * @param name
+	 */
+	public void setName(String name) {
+		this.name = name;
+	}
+	
+	/**
+	 * Re-types this object.
+	 * @param type
+	 */
+	public void setType(String type) {
+		this.type = type;
+	}
+	
+	/**
 	 * Returns the first instance of an object with a name that matches objectName.
 	 * According to SOFFIT conventions, multiple SoffitObjects may be named the same.
 	 * Only the first instance is returned in this case.
@@ -165,6 +181,60 @@ public class SoffitObject {
 		}
 		
 		return foundObjects;
+	}
+	
+	/**
+	 * Removes the first occurrence of an object with a name matching the passed String.
+	 * @param name
+	 */
+	public void removeObject(String name) {
+		for(int i = 0; i < objects.size(); i++) {
+			if(objects.get(i).getName().compareTo(name) == 0) {
+				objects.remove(i);
+				return;
+			}
+		}
+	}
+	
+	/**
+	 * Removes all objects of a type matching the passed String.
+	 * @param name
+	 */
+	public void removeObjectsByType(String type) {
+		for(int i = 0; i < objects.size(); i++) {
+			if(objects.get(i).getType().compareTo(type) == 0) {
+				objects.remove(i);
+			}
+		}
+	}
+	
+	/**
+	 * Removes the first occurrence of a field with a name matching the passed String.
+	 * @param name
+	 */
+	public void removeField(String name) {
+		for(int i = 0; i < fields.size(); i++) {
+			if(fields.get(i).getName().compareTo(name) == 0) {
+				fields.remove(i);
+				return;
+			}
+		}
+	}
+	
+	
+	
+	/**
+	 * Removes all objects contained within this object.
+	 */
+	public void removeAllObjects() {
+		objects.clear();
+	}
+	
+	/**
+	 * Removes all fields contained within this object.
+	 */
+	public void removeAllFields() {
+		fields.clear();
 	}
 	
 	/**
