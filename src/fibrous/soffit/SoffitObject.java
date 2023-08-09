@@ -108,6 +108,18 @@ public class SoffitObject {
 	}
 	
 	/**
+	 * Returns the first SoffitObject belonging to this object.
+	 * Useful if all data is encapsulated within one object.
+	 * @return
+	 */
+	public SoffitObject getFirstObject() {
+		if(objects.size() > 0)
+			return objects.get(0);
+		else
+			return null;
+	}
+	
+	/**
 	 * Returns the first instance of a field with a name that matches fieldName.
 	 * According to SOFFIT conventions, multiple SoffitFields may be named the same.
 	 * Only the first instance is returned in this case.
