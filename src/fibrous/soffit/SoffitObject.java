@@ -31,7 +31,7 @@
 
 package fibrous.soffit;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
 
 public class SoffitObject {
 	
@@ -40,8 +40,8 @@ public class SoffitObject {
 	private String type;
 	private String name;
 	
-	private LinkedList<SoffitObject> objects;
-	private LinkedList<SoffitField> fields;
+	private ArrayList<SoffitObject> objects;
+	private ArrayList<SoffitField> fields;
 	
 	private int level = -1;
 	
@@ -54,8 +54,8 @@ public class SoffitObject {
 		this.type = type;
 		this.name = name;
 		
-		objects = new LinkedList<>();
-		fields = new LinkedList<>();
+		objects = new ArrayList<>();
+		fields = new ArrayList<>();
 	}
 	
 	/**
@@ -137,15 +137,15 @@ public class SoffitObject {
 	}
 	
 	/**
-	 * Returns a LinkedList containing all fields with a name matching fieldName.
+	 * Returns a ArrayList containing all fields with a name matching fieldName.
 	 * According to SOFFIT conventions, multiple SoffitFields may be named the same.
 	 * Returns an empty linked list if no objects are found.
 	 * @param fieldName
 	 * @return
 	 */
-	public LinkedList<SoffitField> getFieldsByName(String fieldName) {
+	public ArrayList<SoffitField> getFieldsByName(String fieldName) {
 		
-		LinkedList<SoffitField> foundFields = new LinkedList<>();
+		ArrayList<SoffitField> foundFields = new ArrayList<>();
 		
 		for(int i = 0; i < fields.size(); i++) {
 			if(fields.get(i).getName().compareTo(fieldName) == 0) {
@@ -157,15 +157,15 @@ public class SoffitObject {
 	}
 	
 	/**
-	 * Returns a LinkedList containing all objects with a name matching objectsName.
+	 * Returns a ArrayList containing all objects with a name matching objectsName.
 	 * According to SOFFIT conventions, multiple SoffitObjects may be named the same.
 	 * Returns an empty linked list if no objects are found.
 	 * @param objectsName
 	 * @return
 	 */
-	public LinkedList<SoffitObject> getObjectsByName(String objectsName) {
+	public ArrayList<SoffitObject> getObjectsByName(String objectsName) {
 		
-		LinkedList<SoffitObject> foundObjects = new LinkedList<>();
+		ArrayList<SoffitObject> foundObjects = new ArrayList<>();
 		
 		for(int i = 0; i < objects.size(); i++) {
 			if(objects.get(i).getName().compareTo(objectsName) == 0) {
@@ -177,14 +177,14 @@ public class SoffitObject {
 	}
 	
 	/**
-	 * Returns a LinkedList containing all objects of a type matching objectsType.
-	 * Returns an empty LinkedList if no matching objects are found.
+	 * Returns a ArrayList containing all objects of a type matching objectsType.
+	 * Returns an empty ArrayList if no matching objects are found.
 	 * @param objectsName
 	 * @return
 	 */
-	public LinkedList<SoffitObject> getObjectsByType(String objectsType) {
+	public ArrayList<SoffitObject> getObjectsByType(String objectsType) {
 		
-		LinkedList<SoffitObject> foundObjects = new LinkedList<>();
+		ArrayList<SoffitObject> foundObjects = new ArrayList<>();
 		
 		for(int i = 0; i < objects.size(); i++) {
 			if(objects.get(i).getType().compareTo(objectsType) == 0) {
@@ -266,20 +266,20 @@ public class SoffitObject {
 	}
 	
 	/**
-	 * Returns a LinkedList containing all SoffitObjects within this object.
-	 * Returns an empty LinkedList if this object contains no other objects.
+	 * Returns a ArrayList containing all SoffitObjects within this object.
+	 * Returns an empty ArrayList if this object contains no other objects.
 	 * @return
 	 */
-	public LinkedList<SoffitObject> getAllObjects() {
+	public ArrayList<SoffitObject> getAllObjects() {
 		return objects;
 	}
 	
 	/**
-	 * Returns a LinkedList containing all SoffitFields within this object.
-	 * Returns an empty LinkedList if this object contains no SoffitFields.
+	 * Returns a ArrayList containing all SoffitFields within this object.
+	 * Returns an empty ArrayList if this object contains no SoffitFields.
 	 * @return
 	 */
-	public LinkedList<SoffitField> getAllFields() {
+	public ArrayList<SoffitField> getAllFields() {
 		return fields;
 	}
 	
