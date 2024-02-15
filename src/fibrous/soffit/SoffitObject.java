@@ -47,6 +47,7 @@ public class SoffitObject {
 	
 	/**
 	 * Constructs a SoffitObject with a specified type and name.
+	 * If this is to be a root object, best practice states that the type and name should be null.
 	 * @param type
 	 * @param name
 	 */
@@ -59,6 +60,16 @@ public class SoffitObject {
 	}
 	
 	/**
+	 * Constructs a nameless SoffitObject with a specified type.
+	 * @param type
+	 * @param name
+	 */
+	public SoffitObject(String type) {
+		this.type = type;
+		this.name = null;
+	}
+	
+	/**
 	 * Returns the type of this object.
 	 * @return
 	 */
@@ -68,6 +79,7 @@ public class SoffitObject {
 	
 	/**
 	 * Returns the name of this object.
+	 * It is possible for the returned value to be null, even if the object was formatted correctly.
 	 * @return
 	 */
 	public String getName() {
@@ -94,7 +106,7 @@ public class SoffitObject {
 	 * Returns the first instance of an object with a name that matches objectName.
 	 * According to SOFFIT conventions, multiple SoffitObjects may be named the same.
 	 * Only the first instance is returned in this case.
-	 * Returns null if no matching object is found.
+	 * Throws a {@link SoffitException} if no matching object is found.
 	 * @param objectName
 	 * @return
 	 */
@@ -104,26 +116,27 @@ public class SoffitObject {
 				return objects.get(i);
 			}
 		}
-		return null;
+		throw new SoffitException("No object with the name \"" + objectName + "\" is located in object \"" + toString() + "\"");
 	}
 	
 	/**
 	 * Returns the first SoffitObject belonging to this object.
 	 * Useful if all data is encapsulated within one object.
+	 * Throws a {@link SoffitException} if this object contains no other objects.
 	 * @return
 	 */
 	public SoffitObject getFirstObject() {
 		if(objects.size() > 0)
 			return objects.get(0);
 		else
-			return null;
+			throw new SoffitException("This object (" + toString() + ") contains no other objects");
 	}
 	
 	/**
 	 * Returns the first instance of a field with a name that matches fieldName.
 	 * According to SOFFIT conventions, multiple SoffitFields may be named the same.
 	 * Only the first instance is returned in this case.
-	 * Returns null if no matching field is found.
+	 * Throws a {@link SoffitException} if no matching field is found.
 	 * @param fieldName
 	 * @return
 	 */
@@ -133,13 +146,13 @@ public class SoffitObject {
 				return fields.get(i);
 			}
 		}
-		return null;
+		throw new SoffitException("No field with the name \"" + fieldName + "\" is located in object \"" + toString() + "\"");
 	}
 	
 	/**
 	 * Returns a ArrayList containing all fields with a name matching fieldName.
 	 * According to SOFFIT conventions, multiple SoffitFields may be named the same.
-	 * Returns an empty linked list if no objects are found.
+	 * Returns an empty ArrayList list if no objects are found.
 	 * @param fieldName
 	 * @return
 	 */
@@ -159,7 +172,7 @@ public class SoffitObject {
 	/**
 	 * Returns a ArrayList containing all objects with a name matching objectsName.
 	 * According to SOFFIT conventions, multiple SoffitObjects may be named the same.
-	 * Returns an empty linked list if no objects are found.
+	 * Returns an empty ArrayList if no objects are found.
 	 * @param objectsName
 	 * @return
 	 */
@@ -197,7 +210,7 @@ public class SoffitObject {
 	
 	/**
 	 * Returns a SoffitObject matching the specified type and name.
-	 * Returns null if the object is not found.
+	 * Throws a {@link SoffitException} if the object is not found.
 	 * @param objectType
 	 * @param objectName
 	 * @return
@@ -208,11 +221,12 @@ public class SoffitObject {
 				return currentObject;
 		}
 		
-		return null;
+		throw new SoffitException("No object with the name \"" + objectName + "\" and of type \"" + objectType + "\" is located in object \"" + toString() + "\"");
 	}
 	
 	/**
 	 * Removes the first occurrence of an object with a name matching the passed String.
+	 * This ultimately does nothing if the object is not found.
 	 * @param name
 	 */
 	public void removeObject(String name) {
@@ -226,6 +240,7 @@ public class SoffitObject {
 	
 	/**
 	 * Removes all objects of a type matching the passed String.
+	 * This ultimately does nothing if the objects are not found.
 	 * @param name
 	 */
 	public void removeObjectsByType(String type) {
@@ -238,6 +253,7 @@ public class SoffitObject {
 	
 	/**
 	 * Removes the first occurrence of a field with a name matching the passed String.
+	 * This ultimately does nothing if the field is not found.
 	 * @param name
 	 */
 	public void removeField(String name) {
@@ -349,6 +365,7 @@ public class SoffitObject {
 	 * I.e, it lists this objects ancestry.
 	 * Each object is separated by a forward slash (/).
 	 * If an object is unnamed/anonymous, then the object type is substituted for the object name, and it is annotated as "(anon)".
+	 * The perceived root will be represented as "__root".
 	 * According to SOFFIT conventions, multiple objects may have the same name and type, so this may not be useful in some circumstances.
 	 */
 	@Override
@@ -363,11 +380,11 @@ public class SoffitObject {
 		
 		if(parent != null) {
 			if(parent.isRoot())
-				path = name;
+				path = "__root/" + name;
 			else
 				path = parent.toString() + "/" + tempPath;
 		} else {
-			path = "";
+			path = "__root";
 		}
 		
 		return path;
