@@ -79,11 +79,14 @@ public class SoffitObject {
 	
 	/**
 	 * Returns the name of this object.
-	 * It is possible for the returned value to be null, even if the object was formatted correctly.
+	 * The name may be blank.
 	 * @return
 	 */
 	public String getName() {
-		return name;
+		if(name == null)
+			return "";
+		else
+			return name;
 	}
 	
 	/**
