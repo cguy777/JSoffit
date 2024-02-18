@@ -1,0 +1,2 @@
+v1.0.1
+-Replaced null returns for SoffitExceptions in the get field/object methods when the property isn't found.
