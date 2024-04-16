@@ -67,6 +67,9 @@ public class SoffitObject {
 	public SoffitObject(String type) {
 		this.type = type;
 		this.name = null;
+		
+		objects = new ArrayList<>();
+		fields = new ArrayList<>();
 	}
 	
 	/**
