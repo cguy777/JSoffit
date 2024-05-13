@@ -32,6 +32,8 @@
 package fibrous.soffit;
 
 import java.io.BufferedOutputStream;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -111,6 +113,29 @@ public class SoffitUtil {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	/**
+	 * Convenience method to write an object to an {@link OutputStream} and then format that stream into a string.
+	 * The returned string appears exactly as it would in in a stream, containing both the header and footer.
+	 * @param root
+	 * @return
+	 */
+	public static String WriteStreamToString(SoffitObject root) {
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		WriteStream(root, baos);
+		
+		return baos.toString();
+	}
+	
+	/**
+	 * Convenience method to read a Soffit stream from a formatted string.
+	 * @param stream
+	 * @return
+	 */
+	public static SoffitObject ReadStreamFromString(String stream) {
+		ByteArrayInputStream bais = new ByteArrayInputStream(stream.getBytes());
+		return ReadStream(bais);
 	}
 	
 	/**
