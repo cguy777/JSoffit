@@ -68,15 +68,16 @@ public class SoffitUtil {
 	public static SoffitObject ReadStream(InputStream stream) throws SoffitException {
 		lineNumber = 0;
 		
-		Scanner scanner = new Scanner(stream);
 		SoffitObject root = new SoffitObject(null, null);
 		
 		//Look for __SoffitStart first
-		String header = getLine(scanner);
+		//String header = getLine(scanner);
+		//Experimental
+		String header = getLine(stream);
 		if(header.compareTo(SOFFIT_START) != 0)
 			throw new SoffitException("SOFFIT header not found.");
 		
-		parseObject(scanner, root);
+		parseObject(stream, root);
 		
 		return root;
 	}
@@ -205,13 +206,13 @@ public class SoffitUtil {
 	 * This functions recursively.
 	 */
 	
-	private static void parseObject(Scanner scanner, SoffitObject parent) throws SoffitException {
+	private static void parseObject(InputStream stream, SoffitObject parent) throws SoffitException {
 		Stack<SoffitObject> stack = new Stack<>();
 		stack.push(parent);
 		
 		while (!stack.isEmpty()) {
 			SoffitObject currentObject = stack.peek();
-			String line = getLine(scanner);
+			String line = getLine(stream);
 			
 			//If we didn't get anything, then break out.
 			if (line == null) {
@@ -338,18 +339,36 @@ public class SoffitUtil {
 		return tokens;
 	}
 	
-	private static String getLine(Scanner scanner) {
+	private static String getLine(InputStream is) {
+	
 		while(true) {
+			String line = "";
 			lineNumber++;
-			String line = null;
 			
-			try {
-				line = scanner.nextLine();
-				line = line.strip();
-			} catch(NoSuchElementException e) {
-				//Explicitly return null
-				return null;
+			while(true) {
+				
+				try {
+					int c = is.read();
+					
+					//Check for EOS
+					if(c == -1)
+						break;
+					
+					//Check for new line
+					if(c == (int) '\n')
+						break;
+					if(c == (int) '\r')
+						break;
+					
+					line += (char) c;
+					
+				} catch(IOException e) {
+					//Explicitly return null
+					return null;
+				}
 			}
+			
+			line = line.strip();
 			
 			//Check for blank line
 			if(line.isEmpty() || line.isBlank())
