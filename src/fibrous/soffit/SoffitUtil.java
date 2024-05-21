@@ -152,6 +152,10 @@ public class SoffitUtil {
 			
 			SoffitField field = object.getAllFields().get(i);
 			
+			//Check for null pointer assigned to the field's value.
+			if(field.getValue() == null)
+				throw new NullPointerException("Value assigned to SOFFIT field \"" + field.getName() + "\" is a null pointer.");
+			
 			try {
 				bStream.write(convertFieldToLineBytes(field));
 				bStream.flush();
@@ -203,7 +207,6 @@ public class SoffitUtil {
 	
 	/**
 	 * Parses and interprets SoffitObjects/Fields from a scanner.
-	 * This functions recursively.
 	 */
 	
 	private static void parseObject(InputStream stream, SoffitObject parent) throws SoffitException {
