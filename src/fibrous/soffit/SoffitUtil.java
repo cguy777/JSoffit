@@ -70,9 +70,6 @@ public class SoffitUtil {
 		
 		SoffitObject root = new SoffitObject(null, null);
 		
-		//Look for __SoffitStart first
-		//String header = getLine(scanner);
-		//Experimental
 		String header = getLine(stream);
 		if(header.compareTo(SOFFIT_START) != 0)
 			throw new SoffitException("SOFFIT header not found.");
@@ -206,7 +203,7 @@ public class SoffitUtil {
 	}	
 	
 	/**
-	 * Parses and interprets SoffitObjects/Fields from a scanner.
+	 * Parses and interprets SoffitObjects and its contained SoffitFields and nested SoffitObjects.
 	 */
 	
 	private static void parseObject(InputStream stream, SoffitObject parent) throws SoffitException {
