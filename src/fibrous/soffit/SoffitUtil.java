@@ -437,7 +437,7 @@ public class SoffitUtil {
 		line += " ";
 		
 		//name
-		if(name != null) {
+		if(name.length() > 0 && name != null) {
 			line += '"';
 			name = convertToEscapeSequence(name);
 			for(int i = 0; i < name.length(); i++) {
