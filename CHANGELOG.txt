@@ -1,3 +1,6 @@
+v1.2.0
+-Added SimpleSerialSoffitObject abstract class.
+
 v1.1.1
 -Eliminated the use of the Scanner class as it can cause issues by eating the entire input stream.
 
