@@ -1,5 +1,5 @@
 The SOFFIT Definition
-v1.0.2
+v1.1.0
 
 1. Introduction to SOFFIT
 	SOFFIT (String Object Framework For Information Transfer) is a simple, human-readable structured data format for transferring and storing information.  It is based around the concept of objects containing only strings for data.  There are 3 core concepts with SOFFIT: The header/footer (__SoffitStart/__SoffitEnd) system, fields, and objects.  Let's start with the first.
@@ -12,7 +12,15 @@ v1.0.2
 
 	TheNameOfAField "The value of a field."
 
-The name is a single-word (meaning no whitespace) key that can be used to identify the value.  The value is textual data contained within quotations.  The value itself MUST NOT contain quotes, as this can interfere with parsing (however, there are escape sequences that allow quotes).  The value does not have to be solely textual data, but can be a number, or any other data that you want to represent.  It is up to the receiving end of the stream to know how to interpret the value.  Multiple fields CAN be named the same.  This allows flexibility, and provides a way to store data in multiple ways.  Again, it is up to the receiving end to understand how to interpret the data presented.
+The name is a single-word (meaning no whitespace) key that can be used to identify the value.  The value is textual data contained within quotations.  The value itself MUST NOT contain quotes, as this can interfere with parsing (however, there are escape sequences that allow quotes).  The value does not have to be solely textual data, but can be a number, or any other data that you want to represent.  It is up to the receiving end of the stream to know how to interpret the value.  Multiple fields CAN be named the same.  This allows flexibility, and provides a way to store data in multiple ways.  Again, it is up to the receiving end to understand how to interpret the data presented.  Fields do not need to contain a value, and can simply consist of a name:
+
+	TheNameOfAField
+
+The above example is equivalent to the following:
+
+	TheNameOfAField ""
+	
+These are known as null fields.  They can be used to declare items within a list that need to be defined later, or whatever other ideas that may need an empty defined field.
 
 4. Objects
 	Finally, we have objects.  SOFFIT objects are defined as a collection of fields and other objects.  They consist of a type and an optional name (or label).  The denoting of objects is performed with curly brackets.  Object names CAN contain spaces.  A syntax example for an object is show below:

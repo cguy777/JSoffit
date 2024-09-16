@@ -256,7 +256,11 @@ public class SoffitUtil {
 			//Handle Fields
 			} else if (isField(tokens)) {
 				String name = tokens.get(0);
-				String value = stripQuotations(tokens.get(1));
+				String value = "";
+				
+				//Set value, if defined.
+				if(tokens.size() > 1)
+					value = stripQuotations(tokens.get(1));
 			
 				// Check for proper escape sequences
 				try {
@@ -403,13 +407,18 @@ public class SoffitUtil {
 		line += ' ';
 		
 		//Value
-		line += '"';
-		value = convertToEscapeSequence(value);
-		for(int i = 0; i < value.length(); i++) {
-			//Add all normal characters
-			line += value.charAt(i);
+		//Check for blank value
+		if(!field.getValue().isEmpty()) {
+			line += '"';
+			value = convertToEscapeSequence(value);
+			for(int i = 0; i < value.length(); i++) {
+				//Add all normal characters
+				line += value.charAt(i);
+			}
+			line += '"';
 		}
-		line += "\"\n";
+		
+		line += "\n";
 		
 		return convertLineToBytes(line);
 	}
@@ -526,10 +535,10 @@ public class SoffitUtil {
 	}
 	
 	private static boolean isField(ArrayList<String> tokens) {
-		if(tokens.size() != 2)
+		if(tokens.size() > 2)
 			return false;
 		
-		String lastToken = tokens.get(1);
+		String lastToken = tokens.get(tokens.size() - 1);
 		
 		//Bracket indicates object
 		if(lastToken.compareTo("{") == 0)
@@ -538,6 +547,11 @@ public class SoffitUtil {
 		//Check for quotes
 		if(lastToken.charAt(0) == '"' && lastToken.charAt(lastToken.length() - 1) == '"')
 			return true;
+		
+		//Null field
+		if(tokens.size() == 1) {
+			return true;
+		}
 		
 		//default determination of false
 		return false;

@@ -1,8 +1,12 @@
+v1.3.0
+-Added support for null fields.
+-Removed the SimpleSerialSoffitObject abstract class, as it is beyond the scope of this library.
+
 v1.2.0
 -Added SimpleSerialSoffitObject abstract class.
 
 v1.1.1
--Eliminated the use of the Scanner class as it can cause issues by eating the entire input stream.
+-Eliminated the use of the Scanner class as it can cause issues from eating the entire input stream.
 
 v1.1.0
 -Added ReadStreamFromString method
