@@ -1,5 +1,5 @@
 The SOFFIT Definition
-v1.1.1
+v1.1.0
 
 1. Introduction to SOFFIT
 	SOFFIT (String Object Framework For Information Transfer) is a simple, human-readable structured data format for transferring and storing information.  It is based around the concept of objects containing only strings for data.  There are 3 core concepts with SOFFIT: The header/footer (__SoffitStart/__SoffitEnd) system, fields, and objects.  Let's start with the first.
