@@ -258,6 +258,19 @@ public class SoffitObject {
 	}
 	
 	/**
+	 * Removes all objects of a name matching the passed String.
+	 * This ultimately does nothing if the objects are not found.
+	 * @param name
+	 */
+	public void removeObjectsByName(String name) {
+		for(int i = 0; i < objects.size(); i++) {
+			if(objects.get(i).getName().compareTo(name) == 0) {
+				objects.remove(i);
+			}
+		}
+	}
+	
+	/**
 	 * Removes the first occurrence of a field with a name matching the passed String.
 	 * This ultimately does nothing if the field is not found.
 	 * @param name
