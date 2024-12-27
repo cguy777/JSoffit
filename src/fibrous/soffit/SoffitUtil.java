@@ -219,6 +219,10 @@ public class SoffitUtil {
 			
 			ArrayList<String> tokens = getLineTokens(line);
 			
+			//Ensure there are no double quotes in first token (The first token would be an object type, field name, or closing bracket)
+			if(containsCharacter(tokens.get(0), '"'))
+				throw new SoffitException("SOFFIT syntax error.", lineNumber);
+			
 			//Closing Bracket
 			if (tokens.size() == 1 && tokens.get(0).equals("}")) {
 				if (!currentObject.isRoot()) {
@@ -594,5 +598,14 @@ public class SoffitUtil {
 		}
 	
 		return lineCharArray;
+	}
+	
+	private static boolean containsCharacter(String s, char c) {
+		for(int i = 0; i < s.length(); i++) {
+			if(s.charAt(i) == c)
+				return true;
+		}
+		
+		return false;
 	}
 }
