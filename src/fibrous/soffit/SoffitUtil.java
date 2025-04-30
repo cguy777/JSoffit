@@ -348,6 +348,7 @@ public class SoffitUtil {
 	private static String getLine(InputStream is) {
 	
 		while(true) {
+			boolean eos = false;
 			String line = "";
 			lineNumber++;
 			
@@ -356,13 +357,11 @@ public class SoffitUtil {
 				try {
 					int c = is.read();
 					
-					//Check for EOS at beginning of parsing.
-					if(c == -1 && lineNumber == 1)
-						return null;
-					
-					//Check for EOS
-					if(c == -1)
+					//Check for EOS;
+					if(c == -1) {
+						eos = true;
 						break;
+					}
 					
 					//Check for new line
 					if(c == (int) '\n')
@@ -379,6 +378,14 @@ public class SoffitUtil {
 			}
 			
 			line = line.strip();
+			
+			//Check for EOS and essentially a null line
+			if(eos && line.length() == 0)
+				return null;
+			
+			//Return if EOS is reached
+			if(eos)
+				return line;
 			
 			//Check for blank line
 			if(line.isEmpty() || line.isBlank())
