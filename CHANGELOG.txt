@@ -1,3 +1,6 @@
+v1.3.1
+-Corrected an issue that would cause the ReadStream method to endlessly loop if it encountered an EOS at the very beginning of the input stream.
+
 v1.3.0
 -Added support for null fields.
 -Removed the SimpleSerialSoffitObject abstract class, as it is beyond the scope of this library.

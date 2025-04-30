@@ -356,6 +356,10 @@ public class SoffitUtil {
 				try {
 					int c = is.read();
 					
+					//Check for EOS at beginning of parsing.
+					if(c == -1 && lineNumber == 1)
+						return null;
+					
 					//Check for EOS
 					if(c == -1)
 						break;
