@@ -1,3 +1,6 @@
+v1.4.2
+-Changed String compare operations from compareTo() to equals()
+
 v1.3.1
 -Corrected an issue that would cause the ReadStream method to endlessly loop if it encountered an EOS at the very beginning of the input stream.
 

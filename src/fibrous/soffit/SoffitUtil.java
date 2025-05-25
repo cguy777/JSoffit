@@ -69,7 +69,7 @@ public class SoffitUtil {
 		SoffitObject root = new SoffitObject(null, null);
 		
 		String header = getLine(stream);
-		if(header.compareTo(SOFFIT_START) != 0)
+		if(!header.equals(SOFFIT_START))
 			throw new SoffitException("SOFFIT header not found.");
 		
 		parseObject(stream, root);
@@ -556,7 +556,7 @@ public class SoffitUtil {
 		String lastToken = tokens.get(tokens.size() - 1);
 		
 		//Bracket indicates object
-		if(lastToken.compareTo("{") == 0)
+		if(lastToken.equals("{"))
 			return false;
 		
 		//Check for quotes
@@ -579,7 +579,7 @@ public class SoffitUtil {
 			//Check for trailing bracket
 			//Bracket is required to be an object
 			String lastToken = tokens.get(1);
-			if(lastToken.compareTo("{") == 0)
+			if(lastToken.equals("{"))
 				return true;
 		}
 		
@@ -592,7 +592,7 @@ public class SoffitUtil {
 			if(token2.charAt(0) == '"' && token2.charAt(token2.length() - 1) == '"') {
 				
 				//Check for trailing bracket
-				if(token3.compareTo("{") == 0)
+				if(token3.equals("{"))
 					return true;
 			}
 		}		

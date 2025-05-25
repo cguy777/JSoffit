@@ -118,7 +118,7 @@ public class SoffitObject {
 	 */
 	public SoffitObject getObject(String objectName) {
 		for(int i = 0; i < objects.size(); i++) {
-			if(objects.get(i).getName().compareTo(objectName) == 0) {
+			if(objects.get(i).getName().equals(objectName)) {
 				return objects.get(i);
 			}
 		}
@@ -148,7 +148,7 @@ public class SoffitObject {
 	 */
 	public SoffitField getField(String fieldName) {
 		for(int i = 0; i < fields.size(); i++) {
-			if(fields.get(i).getName().compareTo(fieldName) == 0) {
+			if(fields.get(i).getName().equals(fieldName)) {
 				return fields.get(i);
 			}
 		}
@@ -167,7 +167,7 @@ public class SoffitObject {
 		ArrayList<SoffitField> foundFields = new ArrayList<>();
 		
 		for(int i = 0; i < fields.size(); i++) {
-			if(fields.get(i).getName().compareTo(fieldName) == 0) {
+			if(fields.get(i).getName().equals(fieldName)) {
 				foundFields.add(fields.get(i));
 			}
 		}
@@ -187,7 +187,7 @@ public class SoffitObject {
 		ArrayList<SoffitObject> foundObjects = new ArrayList<>();
 		
 		for(int i = 0; i < objects.size(); i++) {
-			if(objects.get(i).getName().compareTo(objectsName) == 0) {
+			if(objects.get(i).getName().equals(objectsName)) {
 				foundObjects.add(objects.get(i));
 			}
 		}
@@ -206,7 +206,7 @@ public class SoffitObject {
 		ArrayList<SoffitObject> foundObjects = new ArrayList<>();
 		
 		for(int i = 0; i < objects.size(); i++) {
-			if(objects.get(i).getType().compareTo(objectsType) == 0) {
+			if(objects.get(i).getType().equals(objectsType)) {
 				foundObjects.add(objects.get(i));
 			}
 		}
@@ -223,7 +223,7 @@ public class SoffitObject {
 	 */
 	public SoffitObject getObjectByTypeAndName(String objectType, String objectName) {
 		for(SoffitObject currentObject : objects) {
-			if(currentObject.getType().compareTo(objectType) == 0 && currentObject.getName().compareTo(objectName) == 0)
+			if(currentObject.getType().equals(objectType) && currentObject.getName().equals(objectName))
 				return currentObject;
 		}
 		
@@ -237,7 +237,7 @@ public class SoffitObject {
 	 */
 	public void removeObject(String name) {
 		for(int i = 0; i < objects.size(); i++) {
-			if(objects.get(i).getName().compareTo(name) == 0) {
+			if(objects.get(i).getName().equals(name)) {
 				objects.remove(i);
 				return;
 			}
@@ -251,7 +251,7 @@ public class SoffitObject {
 	 */
 	public void removeObjectsByType(String type) {
 		for(int i = 0; i < objects.size(); i++) {
-			if(objects.get(i).getType().compareTo(type) == 0) {
+			if(objects.get(i).getType().equals(type)) {
 				objects.remove(i);
 			}
 		}
@@ -264,7 +264,7 @@ public class SoffitObject {
 	 */
 	public void removeObjectsByName(String name) {
 		for(int i = 0; i < objects.size(); i++) {
-			if(objects.get(i).getName().compareTo(name) == 0) {
+			if(objects.get(i).getName().equals(name)) {
 				objects.remove(i);
 			}
 		}
@@ -277,7 +277,7 @@ public class SoffitObject {
 	 */
 	public void removeField(String name) {
 		for(int i = 0; i < fields.size(); i++) {
-			if(fields.get(i).getName().compareTo(name) == 0) {
+			if(fields.get(i).getName().equals(name)) {
 				fields.remove(i);
 				return;
 			}
