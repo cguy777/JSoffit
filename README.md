@@ -1,6 +1,7 @@
 # JSoffit
 
 JSoffit is an Object oriented SOFFIT processor for Java.
+SOFFIT (String Object Framework For Information Transfer) is a general-purpose data serialization framework/format.
 See 'SOFFIT Definition.txt' for info on the SOFFIT standard.
 
 ## Basic Usage
