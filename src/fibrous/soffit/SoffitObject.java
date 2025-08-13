@@ -176,6 +176,20 @@ public class SoffitObject {
 	}
 	
 	/**
+	 * Returns if a field is contained in this object or not.
+	 * @param fieldName
+	 * @return whether a field is contained in this object or not.
+	 */
+	public boolean hasField(String fieldName) {
+		for(int i = 0; i < fields.size(); i++) {
+			if(fields.get(i).getName().equals(fieldName))
+				return true;
+		}
+		
+		return false;
+	}
+	
+	/**
 	 * Returns a ArrayList containing all objects with a name matching objectsName.
 	 * According to SOFFIT conventions, multiple SoffitObjects may be named the same.
 	 * Returns an empty ArrayList if no objects are found.
