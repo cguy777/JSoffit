@@ -111,7 +111,7 @@ public class SoffitUtil {
 		try {
 			WriteStream(root, baos);
 		} catch (IOException e) {
-			//This shouldn't really ever get called
+			//This shouldn't really get called
 			e.printStackTrace();
 		}
 		
@@ -130,8 +130,9 @@ public class SoffitUtil {
 	
 	/**
 	 * Writes fields first, and then every object recursively.
+	 * @throws IOException 
 	 */
-	private static void writeObjects(SoffitObject object, BufferedOutputStream bStream) {
+	private static void writeObjects(SoffitObject object, BufferedOutputStream bStream) throws IOException {
 		String line = null;
 		byte[] lineBytes = null;
 		
@@ -144,13 +145,9 @@ public class SoffitUtil {
 			//Check for null pointer assigned to the field's value.
 			if(field.getValue() == null)
 				throw new NullPointerException("Value assigned to SOFFIT field \"" + field.getName() + "\" is a null pointer.");
-			
-			try {
-				bStream.write(convertFieldToLineBytes(field));
-				bStream.flush();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+		
+			bStream.write(convertFieldToLineBytes(field));
+			bStream.flush();
 		}
 		
 		//Write object declarations and then recursively write other objects
@@ -158,13 +155,8 @@ public class SoffitUtil {
 			
 			SoffitObject currentObject = object.getAllObjects().get(i);
 			//Write the line the object declaration...
-			
-			try {
-				bStream.write(convertObjectDeclarationToLineBytes(currentObject));
-				bStream.flush();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+			bStream.write(convertObjectDeclarationToLineBytes(currentObject));
+			bStream.flush();
 			
 			//Recursively write the next fields and object declarations.
 			writeObjects(currentObject, bStream);
@@ -185,12 +177,8 @@ public class SoffitUtil {
 			lineBytes = convertLineToBytes(line);
 			
 			//Flush the output stream.
-			try {
-				bStream.write(lineBytes);
-				bStream.flush();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+			bStream.write(lineBytes);
+			bStream.flush();
 		}
 	}	
 	
