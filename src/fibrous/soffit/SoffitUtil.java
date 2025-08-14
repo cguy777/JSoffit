@@ -82,33 +82,22 @@ public class SoffitUtil {
 	 * @param root
 	 * @param output
 	 */
-	public static void WriteStream(SoffitObject root, OutputStream output) {
+	public static void WriteStream(SoffitObject root, OutputStream output) throws IOException{
 		BufferedOutputStream bStream = new BufferedOutputStream(output);
 		
 		//Write header
 		byte[] lineBytes = convertLineToBytes(SOFFIT_START + "\n");
-		try {
-			bStream.write(lineBytes);
-			bStream.flush();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		
-		try {
-			writeObjects(root, bStream);
-			bStream.flush();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		bStream.write(lineBytes);
+		bStream.flush();
+	
+		//Write the object itself
+		writeObjects(root, bStream);
+		bStream.flush();
 		
 		//Write footer
 		lineBytes = convertLineToBytes(SOFFIT_END + "\n");
-		try {
-			bStream.write(lineBytes);
-			bStream.flush();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		bStream.write(lineBytes);
+		bStream.flush();
 	}
 	
 	/**
@@ -119,7 +108,12 @@ public class SoffitUtil {
 	 */
 	public static String WriteStreamToString(SoffitObject root) {
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		WriteStream(root, baos);
+		try {
+			WriteStream(root, baos);
+		} catch (IOException e) {
+			//This shouldn't really ever get called
+			e.printStackTrace();
+		}
 		
 		return baos.toString();
 	}
