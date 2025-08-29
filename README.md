@@ -22,6 +22,6 @@ There are also two alternate functions to work with Java Strings instead of iost
 `public static String WriteStreamToString(SoffitObject)`  
 
 Call one of the read functions to de-serialize a stream and create a SoffitObject.
-You can manually objects and fields with traditional constructors:  
+You can manually create objects and fields with traditional constructors:  
 `SoffitObject exampleObject = new SoffitObject("ObjectType", "ObjectName");`  
-There is a plethora methods associated with the SoffitObject and SoffitField classes to help you manage your data in many different ways.
+There is a plethora of methods associated with the SoffitObject and SoffitField classes to help you manage your data in many different ways.
