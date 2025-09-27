@@ -112,7 +112,7 @@ public class SoffitUtil {
 			WriteStream(root, baos);
 		} catch (IOException e) {
 			//This shouldn't really get called
-			e.printStackTrace();
+			throw new RuntimeException(e);
 		}
 		
 		return baos.toString();
