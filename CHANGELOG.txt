@@ -1,3 +1,6 @@
+v1.5.0
+-Added convenience getters for SoffitField
+
 v1.4.2
 -Changed String compare operations from compareTo() to equals()
 -Added hasField method in SoffitObject

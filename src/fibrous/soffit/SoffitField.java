@@ -74,6 +74,78 @@ public class SoffitField {
 	}
 	
 	/**
+	 * Returns the value of this SoffitField as a String.
+	 * This is functionally the same as getValue().
+	 * @return
+	 */
+	public String asString() {
+		return value;
+	}
+	
+	/**
+	 * Returns the value of this SoffitField as a boolean.
+	 * This calls Boolean.parseBoolean().
+	 * @return
+	 */
+	public boolean asBool() {
+		return Boolean.parseBoolean(value);
+	}
+	
+	/**
+	 * Returns the value of this SoffitField as a byte.
+	 * This calls Byte.parseByte().
+	 * @return
+	 */
+	public byte asByte() throws NumberFormatException {
+		return Byte.parseByte(value);
+	}
+	
+	/**
+	 * Returns the value of this SoffitField as a byte.
+	 * This calls Byte.parseShort().
+	 * @return
+	 */
+	public short asShort() throws NumberFormatException {
+		return Short.parseShort(value);
+	}
+	
+	/**
+	 * Returns the value of this SoffitField as an int.
+	 * This calls Integer.parseInt().
+	 * @return
+	 */
+	public int asInt() throws NumberFormatException {
+		return Integer.parseInt(value);
+	}
+	
+	/**
+	 * Returns the value of this SoffitField as a long.
+	 * This calls Long.parseLong().
+	 * @return
+	 */
+	public long asLong() throws NumberFormatException {
+		return Long.parseLong(value);
+	}
+	
+	/**
+	 * Returns the value of this SoffitField as a float.
+	 * This calls Float.parseFloat().
+	 * @return
+	 */
+	public float asFloat() throws NumberFormatException {
+		return Float.parseFloat(value);
+	}
+	
+	/**
+	 * Returns the value of this SoffitField as a double.
+	 * This calls Double.parseDouble().
+	 * @return
+	 */
+	public double asDouble() throws NumberFormatException {
+		return Double.parseDouble(value);
+	}
+	
+	/**
 	 * Returns the parent object of this field.
 	 * Returns null if it is directly attached to the root object.
 	 * @return
