@@ -74,8 +74,80 @@ public class SoffitField {
 	}
 	
 	/**
+	 * Sets the value of this SoffitField to the String passed.
+	 * This is functionally equivalent to setValue().
+	 * @param value
+	 */
+	public void put(String value) {
+		this.value = value;
+	}
+	
+	/**
+	 * Sets the value of this SoffitField to the boolean passed.
+	 * This uses String.valueOf().
+	 * @param value
+	 */
+	public void put(boolean value) {
+		this.value = String.valueOf(value);
+	}
+	
+	/**
+	 * Sets the value of this SoffitField to the byte passed.
+	 * This uses String.valueOf().
+	 * @param value
+	 */
+	public void put(byte value) {
+		this.value = String.valueOf(value);
+	}
+	
+	/**
+	 * Sets the value of this SoffitField to the short passed.
+	 * This uses String.valueOf().
+	 * @param value
+	 */
+	public void put(short value) {
+		this.value = String.valueOf(value);
+	}
+
+	/**
+	 * Sets the value of this SoffitField to the int passed.
+	 * This uses String.valueOf().
+	 * @param value
+	 */
+	public void put(int value) {
+		this.value = String.valueOf(value);
+	}
+
+	/**
+	 * Sets the value of this SoffitField to the long passed.
+	 * This uses String.valueOf().
+	 * @param value
+	 */
+	public void put(long value) {
+		this.value = String.valueOf(value);
+	}
+
+	/**
+	 * Sets the value of this SoffitField to the float passed.
+	 * This uses String.valueOf().
+	 * @param value
+	 */
+	public void put(float value) {
+		this.value = String.valueOf(value);
+	}
+
+	/**
+	 * Sets the value of this SoffitField to the double passed.
+	 * This uses String.valueOf().
+	 * @param value
+	 */
+	public void put(double value) {
+		this.value = String.valueOf(value);
+	}
+	
+	/**
 	 * Returns the value of this SoffitField as a String.
-	 * This is functionally the same as getValue().
+	 * This is functionally equivalent getValue().
 	 * @return
 	 */
 	public String asString() {

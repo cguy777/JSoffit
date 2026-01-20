@@ -1,5 +1,5 @@
 v1.5.0
--Added convenience getters for SoffitField
+-Added convenience getters and setters for SoffitField.
 
 v1.4.2
 -Changed String compare operations from compareTo() to equals()
