@@ -33,6 +33,10 @@ package fibrous.soffit;
 
 import java.util.ArrayList;
 
+/**
+ * This is the SOFFIT version of a container.
+ * This class simply holds other SoffitObjects and SoffitFields.
+ */
 public class SoffitObject {
 	
 	private SoffitObject parent = null;
@@ -81,11 +85,33 @@ public class SoffitObject {
 	}
 	
 	/**
+	 * Returns the type of this object.
+	 * This is functionally equivalent to getType().
+	 * @return
+	 */
+	public String type() {
+		return type;
+	}
+	
+	/**
 	 * Returns the name of this object.
 	 * The name may be blank.
 	 * @return
 	 */
 	public String getName() {
+		if(name == null)
+			return "";
+		else
+			return name;
+	}
+	
+	/**
+	 * Returns the name of this object.
+	 * The name may be blank.
+	 * This is functionally equivalent to getName().
+	 * @return
+	 */
+	public String name() {
 		if(name == null)
 			return "";
 		else
