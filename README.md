@@ -2,7 +2,7 @@
 
 JSoffit is an Object oriented SOFFIT processor for Java.
 SOFFIT (String Object Framework For Information Transfer) is a general-purpose and schema-less data serialization framework/format.
-See 'SOFFIT Definition.txt' for info on the SOFFIT standard.
+See 'SOFFIT Definition.txt' for info on the SOFFIT standard.  If you just need basic serialization capabilities, this is about as simple and straightforward as it gets.
 
 ## Basic Usage
 
@@ -27,6 +27,9 @@ Call one of the read functions to de-serialize a stream and create a SoffitObjec
 You can manually create objects and fields with traditional constructors:  
 `SoffitObject exampleObject = new SoffitObject("ObjectType", "ObjectName");`  
 Call one of the write functions to serialize a root object.  
-There is a plethora of methods associated with the SoffitObject and SoffitField classes to help you manage your data in many different ways.
+There is a plethora of methods associated with the SoffitObject and SoffitField classes to help you manage your data in many different ways.  
+
+## Recommended Import
+Simply copy the fibrous.soffit package into your project.  This also allows easy access to the source which is relatively simple in nature.  You should be able to find everything you need by looking through the public method names in the `SoffitObject`, `SoffitField`, and `SoffitUtil` classes.
 
 Copyright (c) 2026, Noah McLean
