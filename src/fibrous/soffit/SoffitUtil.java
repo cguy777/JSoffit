@@ -60,8 +60,6 @@ public class SoffitUtil {
 	static final byte[] OPEN_CURLY = "{".getBytes();
 	static final byte[] CLOSING_CURLY = "}".getBytes();
 	
-	private static int lineNumber = 0;
-	
 	/**
 	 * Parses an {@link InputStream} as a root SOFFIT object.
 	 * @param stream
@@ -70,7 +68,7 @@ public class SoffitUtil {
 	 * @throws IOException 
 	 */
 	public static SoffitObject ReadStream(InputStream stream) throws SoffitException, IOException {
-		lineNumber = 0;
+		LineNumber ln = new LineNumber();
 		
 		//This is an internal buffer used for combining chars/strings, and the number passed into this constructor is ultimately how many characters can be in a line.
 		//Rather large buffer to account for an absurdly long line
@@ -78,11 +76,11 @@ public class SoffitUtil {
 		
 		SoffitObject root = new SoffitObject(null, null);
 		
-		byte[] header = getLine(stream, internalStream);
+		byte[] header = getLine(stream, internalStream, ln);
 		if(!areBytesEqual(header, SOFFIT_START_BYTES))
 			throw new SoffitException("SOFFIT header not found.");
 		
-		parseObject(stream, root, internalStream);
+		parseObject(stream, root, internalStream, ln);
 		
 		return root;
 	}
@@ -196,13 +194,13 @@ public class SoffitUtil {
 	 * @throws IOException 
 	 */
 	
-	private static void parseObject(InputStream stream, SoffitObject parent, ArrayOutputStream internalStream) throws SoffitException, IOException {
+	private static void parseObject(InputStream stream, SoffitObject parent, ArrayOutputStream internalStream, LineNumber ln) throws SoffitException, IOException {
 		Stack<SoffitObject> stack = new Stack<>();
 		stack.push(parent);
 		
 		while (!stack.isEmpty()) {
 			SoffitObject currentObject = stack.peek();
-			byte[] line = getLine(stream, internalStream);
+			byte[] line = getLine(stream, internalStream, ln);
 			
 			//If we didn't get anything, then break out.
 			if (line == null) {
@@ -213,19 +211,19 @@ public class SoffitUtil {
 			
 			//Ensure there are no double quotes in first token (The first token would be an object type, field name, or closing bracket)
 			if(containsCharacter(tokens.get(0), '"'))
-				throw new SoffitException("SOFFIT syntax error.", lineNumber);
+				throw new SoffitException("SOFFIT syntax error.", ln.get());
 			
 			//Closing Bracket
 			if (tokens.size() == 1 && areBytesEqual(tokens.get(0), CLOSING_CURLY)) {
 				if (!currentObject.isRoot()) {
 					stack.pop();
 				} else {
-					throw new SoffitException("SOFFIT stream contained too many closing brackets.", lineNumber);
+					throw new SoffitException("SOFFIT stream contained too many closing brackets.", ln.get());
 				}
 			//SOFFIT Footer
 			} else if (areBytesEqual(tokens.get(0), SOFFIT_END_BYTES)) {
 				if (!currentObject.isRoot()) {
-					throw new SoffitException("SOFFIT footer encountered in non-root object.", lineNumber);
+					throw new SoffitException("SOFFIT footer encountered in non-root object.", ln.get());
 				}
 				break;
 			//Handle Objects
@@ -242,7 +240,7 @@ public class SoffitUtil {
 					try {
 						name = convertFromEscapeSequence(name, internalStream);
 					} catch (SoffitException e) {
-						throw new SoffitException(e, lineNumber);
+						throw new SoffitException(e, ln.get());
 					}
 					object = new SoffitObject(new String(type, StandardCharsets.US_ASCII), new String(name, StandardCharsets.US_ASCII));
 				}
@@ -261,14 +259,14 @@ public class SoffitUtil {
 					try {
 						value = convertFromEscapeSequence(value, internalStream);
 					} catch (SoffitException e) {
-						throw new SoffitException(e, lineNumber);
+						throw new SoffitException(e, ln.get());
 					}
 					currentObject.add(new SoffitField(new String(name, StandardCharsets.US_ASCII), new String(value, StandardCharsets.US_ASCII)));
 				} else {
 					currentObject.add(new SoffitField(new String(name, StandardCharsets.US_ASCII), ""));
 				}
 			} else {
-			    throw new SoffitException("SOFFIT syntax error.", lineNumber);
+			    throw new SoffitException("SOFFIT syntax error.", ln.get());
 			}
 		}
 	}
@@ -337,12 +335,12 @@ public class SoffitUtil {
 		return tokens;
 	}
 	
-	private static byte[] getLine(InputStream is, ArrayOutputStream internalStream) {
+	private static byte[] getLine(InputStream is, ArrayOutputStream internalStream, LineNumber ln) {
 		
 		while(true) {
 			internalStream.reset();
 			boolean eos = false;
-			lineNumber++;
+			ln.increment();
 			
 			while(true) {
 				
@@ -359,7 +357,7 @@ public class SoffitUtil {
 					if(c == (int) '\n')
 						break;
 					if(c == (int) '\r')
-						break;
+						continue;
 					
 					internalStream.write((byte) c);
 					
@@ -370,7 +368,6 @@ public class SoffitUtil {
 			}
 			
 			byte[] bytes = stripByteArray(internalStream.getWrittenBytes());
-			//String line = new String(bytes, StandardCharsets.US_ASCII);
 			
 			//Check for EOS and essentially a null line
 			if(eos && bytes.length == 0)
@@ -521,7 +518,6 @@ public class SoffitUtil {
 	 */
 	private static byte[] convertFromEscapeSequence(byte[] s, ArrayOutputStream internalStream) throws IOException {
 		
-		//String convertedString = "";
 		internalStream.reset();
 		
 		for(int i = 0; i < s.length; i++) {
@@ -602,7 +598,7 @@ public class SoffitUtil {
 		byte[] lastToken = tokens.get(tokens.size() - 1);
 		
 		//Bracket indicates object
-		//TODO: is this redundant?  This seems logically accounted for in the parseObject method
+		//TODO: determine if this is redundant.  This seems logically accounted for in the parseObject method.
 		if(areBytesEqual(lastToken, OPEN_CURLY))
 			return false;
 		
@@ -732,5 +728,17 @@ class ArrayOutputStream extends OutputStream {
 		byte[] copy = new byte[pos - mark];
 		System.arraycopy(buffer, mark, copy, 0, copy.length);
 		return copy;
+	}
+}
+
+class LineNumber {
+	int lineNumber = 0;
+	
+	public void increment() {
+		lineNumber++;
+	}
+	
+	public int get() {
+		return lineNumber;
 	}
 }

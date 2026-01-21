@@ -1,6 +1,7 @@
 v1.5.0
 -Major perfomance enhancements (serialization speed increased by ~2.5, and deserialization speed increased by ~6.9x)
 -Added convenience getters and setters for SoffitField.
+-Corrected line number detection.
 
 v1.4.2
 -Changed String compare operations from compareTo() to equals()
