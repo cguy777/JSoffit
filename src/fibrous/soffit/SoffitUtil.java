@@ -37,6 +37,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Stack;
 
@@ -53,6 +54,8 @@ public class SoffitUtil {
 	
 	public static final String SOFFIT_START = "__SoffitStart";
 	public static final String SOFFIT_END = "__SoffitEnd";
+	public static final byte[] SOFFIT_START_BYTES = SOFFIT_START.getBytes();
+	public static final byte[] SOFFIT_END_BYTES = SOFFIT_END.getBytes();
 	public static final char ESCAPE_SEQUENCE = '\\';
 	
 	private static int lineNumber = 0;
@@ -66,13 +69,15 @@ public class SoffitUtil {
 	public static SoffitObject ReadStream(InputStream stream) throws SoffitException {
 		lineNumber = 0;
 		
+		ArrayOutputStream internalStream = new ArrayOutputStream(4096);
+		
 		SoffitObject root = new SoffitObject(null, null);
 		
-		String header = getLine(stream);
+		String header = getLine(stream, internalStream);
 		if(!header.equals(SOFFIT_START))
 			throw new SoffitException("SOFFIT header not found.");
 		
-		parseObject(stream, root);
+		parseObject(stream, root, internalStream);
 		
 		return root;
 	}
@@ -82,20 +87,22 @@ public class SoffitUtil {
 	 * @param root
 	 * @param output
 	 */
-	public static void WriteStream(SoffitObject root, OutputStream output) throws IOException{
+	public static void WriteStream(SoffitObject root, OutputStream output) throws IOException {
 		BufferedOutputStream bStream = new BufferedOutputStream(output);
+		//This is an internal buffer used for combining chars/strings, and the number passed into this constructor is ultimately how many characters can be in a line.
+		ArrayOutputStream internalStream = new ArrayOutputStream(4096);
 		
 		//Write header
-		byte[] lineBytes = convertLineToBytes(SOFFIT_START + "\n");
+		byte[] lineBytes = (SOFFIT_START + "\n").getBytes();
 		bStream.write(lineBytes);
 		bStream.flush();
 	
 		//Write the object itself
-		writeObjects(root, bStream);
+		writeObjects(root, bStream, internalStream);
 		bStream.flush();
 		
 		//Write footer
-		lineBytes = convertLineToBytes(SOFFIT_END + "\n");
+		lineBytes = (SOFFIT_END + "\n").getBytes();
 		bStream.write(lineBytes);
 		bStream.flush();
 	}
@@ -132,10 +139,7 @@ public class SoffitUtil {
 	 * Writes fields first, and then every object recursively.
 	 * @throws IOException 
 	 */
-	private static void writeObjects(SoffitObject object, BufferedOutputStream bStream) throws IOException {
-		String line = null;
-		byte[] lineBytes = null;
-		
+	private static void writeObjects(SoffitObject object, BufferedOutputStream bStream, ArrayOutputStream internalStream) throws IOException {		
 		//Write the fields first
 		for(int i = 0; i < object.getAllFields().size(); i++) {			
 			//Write the line containing a field...
@@ -146,7 +150,7 @@ public class SoffitUtil {
 			if(field.getValue() == null)
 				throw new NullPointerException("Value assigned to SOFFIT field \"" + field.getName() + "\" is a null pointer.");
 		
-			bStream.write(convertFieldToLineBytes(field));
+			bStream.write(convertFieldToLineBytes(field, internalStream));
 			bStream.flush();
 		}
 		
@@ -155,29 +159,26 @@ public class SoffitUtil {
 			
 			SoffitObject currentObject = object.getAllObjects().get(i);
 			//Write the line the object declaration...
-			bStream.write(convertObjectDeclarationToLineBytes(currentObject));
+			bStream.write(convertObjectDeclarationToLineBytes(currentObject, internalStream));
 			bStream.flush();
 			
 			//Recursively write the next fields and object declarations.
-			writeObjects(currentObject, bStream);
+			writeObjects(currentObject, bStream, internalStream);
 			
 			//Write closing brackets.
-			line = "";
-			
+			internalStream.reset();
 			//Set indentation
 			if(currentObject.getParent() != null) {
 				for(int i2 = 0; i2 < currentObject.getNestedLevel(); i2++) {
-					line += "\t";
+					internalStream.write((byte) '\t');
 				}	
 			}
 			
-			line += "}\n";
-			
-			//Convert to byte array.
-			lineBytes = convertLineToBytes(line);
+			internalStream.write((byte) '}');
+			internalStream.write((byte) '\n');
 			
 			//Flush the output stream.
-			bStream.write(lineBytes);
+			bStream.write(internalStream.getWrittenBytes());
 			bStream.flush();
 		}
 	}	
@@ -186,13 +187,13 @@ public class SoffitUtil {
 	 * Parses and interprets SoffitObjects and its contained SoffitFields and nested SoffitObjects.
 	 */
 	
-	private static void parseObject(InputStream stream, SoffitObject parent) throws SoffitException {
+	private static void parseObject(InputStream stream, SoffitObject parent, ArrayOutputStream internalStream) throws SoffitException {
 		Stack<SoffitObject> stack = new Stack<>();
 		stack.push(parent);
 		
 		while (!stack.isEmpty()) {
 			SoffitObject currentObject = stack.peek();
-			String line = getLine(stream);
+			String line = getLine(stream, internalStream);
 			
 			//If we didn't get anything, then break out.
 			if (line == null) {
@@ -327,11 +328,12 @@ public class SoffitUtil {
 		return tokens;
 	}
 	
-	private static String getLine(InputStream is) {
-	
+	private static String getLine(InputStream is, ArrayOutputStream internalStream) {
+		
 		while(true) {
+			internalStream.reset();
 			boolean eos = false;
-			String line = "";
+			//String line = "";
 			lineNumber++;
 			
 			while(true) {
@@ -351,7 +353,8 @@ public class SoffitUtil {
 					if(c == (int) '\r')
 						break;
 					
-					line += (char) c;
+					//line += (char) c;
+					internalStream.write((byte) c);
 					
 				} catch(IOException e) {
 					//Explicitly return null
@@ -359,6 +362,8 @@ public class SoffitUtil {
 				}
 			}
 			
+			//line = line.strip();
+			String line = new String(internalStream.getWrittenBytes(), StandardCharsets.US_ASCII);
 			line = line.strip();
 			
 			//Check for EOS and essentially a null line
@@ -384,75 +389,77 @@ public class SoffitUtil {
 	
 	/**
 	 * Internal to the writeObject method.
+	 * @throws IOException 
 	 */
-	private static byte[] convertFieldToLineBytes(SoffitField field) {
+	private static byte[] convertFieldToLineBytes(SoffitField field, ArrayOutputStream internalStream) throws IOException {
+		internalStream.reset();
 		
 		String name = field.getName();
 		String value = field.getValue();
 		
-		String line = "";
+		//String line = "";
 		
 		//Set indentation
 		for(int i = 0; i < field.getNestingLevel(); i++) {
-			line += '\t';
+			internalStream.write((byte) '\t');
 		}
 		
 		//Name
 		for(int i = 0; i < name.length(); i++) {
-			line += name.charAt(i);
+			internalStream.write((byte) name.charAt(i));
 		}
-		line += ' ';
+		internalStream.write((byte) ' ');
 		
 		//Value
 		//Check for blank value
 		if(!field.getValue().isEmpty()) {
-			line += '"';
-			value = convertToEscapeSequence(value);
-			for(int i = 0; i < value.length(); i++) {
-				//Add all normal characters
-				line += value.charAt(i);
-			}
-			line += '"';
+			internalStream.write((byte) '"');
+			
+			internalStream.mark();
+			byte[] valueBytes = convertToEscapeSequence(value, internalStream);
+			internalStream.goToMark();
+			
+			internalStream.write(valueBytes);
+			internalStream.write((byte) '"');
 		}
 		
-		line += "\n";
-		
-		return convertLineToBytes(line);
+		internalStream.write((byte) '\n');
+		return internalStream.getWrittenBytes();
 	}
 	
-	/**
-	 * Internal to the writeObjects method.
-	 */
-	private static byte[] convertObjectDeclarationToLineBytes(SoffitObject object) {		
+	private static byte[] convertObjectDeclarationToLineBytes(SoffitObject object, ArrayOutputStream internalStream) throws IOException {
+		internalStream.reset();
+		
 		String type = object.getType();
 		String name = object.getName();
 		
-		String line = "";
-		
 		//Set indentation
 		for(int i = 0; i < object.getNestedLevel(); i++) {
-			line += '\t';
+			internalStream.write((byte) '\t');
 		}
 		
 		//Type
 		for(int i = 0; i < type.length(); i++) {
-			line += type.charAt(i);
+			internalStream.write((byte) type.charAt(i));
 		}
-		line += " ";
+		internalStream.write((byte) ' ');
 		
 		//name
 		if(name.length() > 0 && name != null) {
-			line += '"';
-			name = convertToEscapeSequence(name);
-			for(int i = 0; i < name.length(); i++) {
-				//Add all normal characters
-				line += name.charAt(i);
-			}
-			line += "\" ";
+			internalStream.write((byte) '"');
+			
+			internalStream.mark();
+			byte[] valueBytes = convertToEscapeSequence(name, internalStream);
+			internalStream.goToMark();
+			
+			internalStream.write(valueBytes);
+			internalStream.write((byte) '"');
+			internalStream.write((byte) ' ');
 		}
-		line += "{\n";
+		internalStream.write((byte) '{');
+		internalStream.write((byte) '\n');
 		
-		return convertLineToBytes(line);
+		return internalStream.getWrittenBytes();
 	}
 	
 	/**
@@ -497,30 +504,38 @@ public class SoffitUtil {
 		return convertedString;
 	}
 	
-	private static String convertToEscapeSequence(String s) {
-		String convertedString = "";
+	private static byte[] convertToEscapeSequence(String s, ArrayOutputStream internalStream) throws IOException {
+		//String convertedString = "";
 		for(int i = 0; i < s.length(); i++) {
 			//Double quote correction
 			if(s.charAt(i) == '"') {
-				convertedString += "\\\"";
+				//convertedString += "\\\"";
+				internalStream.write((byte) '\\');
+				internalStream.write((byte) '"');
 				continue;
 			}
 			//Newline correction
 			if(s.charAt(i) == '\n') {
-				convertedString += "\\n";
+				//convertedString += "\\n";
+				internalStream.write((byte) '\\');
+				internalStream.write((byte) 'n');
 				continue;
 			}
 			//Backslash correction
 			if(s.charAt(i) == ESCAPE_SEQUENCE) {
-				convertedString += "\\\\";
+				//convertedString += "\\\\";
+				internalStream.write((byte) '\\');
+				internalStream.write((byte) '\\');
 				continue;
 			}
 			
 			//Add all normal characters
-			convertedString += s.charAt(i);
+			//convertedString += s.charAt(i);
+			internalStream.write((byte) s.charAt(i));
 		}
 		
-		return convertedString;
+		//return convertedString;
+		return internalStream.getWrittenBytesFromMark();
 	}
 	
 	private static String stripQuotations(String s) {
@@ -582,16 +597,6 @@ public class SoffitUtil {
 		//default determination of false
 		return false;
 	}
-
-	private static byte[] convertLineToBytes(String line) {
-		byte[] lineCharArray = new byte[line.length()];
-		//Convert to byte array.
-		for(int i = 0; i < line.length(); i++) {
-			lineCharArray[i] = (byte) line.charAt(i);
-		}
-	
-		return lineCharArray;
-	}
 	
 	private static boolean containsCharacter(String s, char c) {
 		for(int i = 0; i < s.length(); i++) {
@@ -600,5 +605,78 @@ public class SoffitUtil {
 		}
 		
 		return false;
+	}
+	
+	private static boolean areBytesEqual(byte[] a, byte[] b) {
+		if(a.length != b.length)
+			return false;
+		
+		for(int i = 0; i < a.length; i++) {
+			if(a[i] != b[i])
+				return false;
+		}
+		
+		return true;
+	}
+}
+
+class ArrayOutputStream extends OutputStream {
+	byte[] buffer;
+	int pos = 0;
+	int mark = 0;
+	
+	public ArrayOutputStream(int bufferSize) {
+		buffer = new byte[bufferSize];
+	}
+
+	@Override
+	public void write(int b) throws IOException {
+		buffer[pos] = (byte) b;
+		pos++;
+	}
+	
+	@Override
+	public void write(byte[] b) {
+		System.arraycopy(b, 0, buffer, pos, b.length);
+		pos += b.length;
+	}
+	
+	@Override
+	public void write(byte[] b, int off, int len) {
+		System.arraycopy(b, 0, buffer, pos, len);
+		pos += len;
+	}
+	
+	public void reset() {
+		pos = 0;
+		mark = 0;
+	}
+	
+	public void resetMark() {
+		mark = 0;
+	}
+	
+	public void mark() {
+		mark = pos;
+	}
+	
+	public void goToMark() {
+		pos = mark;
+	}
+	
+	public void pipeToOutputStream(OutputStream os) throws IOException {
+		os.write(buffer, 0, pos);
+	}
+	
+	public byte[] getWrittenBytes() {
+		byte[] copy = new byte[pos];
+		System.arraycopy(buffer, 0, copy, 0, pos);
+		return copy;
+	}
+	
+	public byte[] getWrittenBytesFromMark() {
+		byte[] copy = new byte[pos - mark];
+		System.arraycopy(buffer, mark, copy, 0, copy.length);
+		return copy;
 	}
 }
