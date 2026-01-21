@@ -1,6 +1,6 @@
 /* BSD 3-Clause License
  *
- * Copyright (c) 2024, Noah McLean
+ * Copyright (c) 2026, Noah McLean
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
