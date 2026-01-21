@@ -43,23 +43,16 @@ public class SoffitTest {
 		Thread.sleep(250);
 		
 		long bestRead = Long.MAX_VALUE;
-		long bestReadMS = Long.MAX_VALUE;
-		for(int i = 0; i < 1000; i++) {
+		for(int i = 0; i < 3000; i++) {
 			ais.reset();
 			
 			long start = Profiler.RDTSC();
-			long startMS = System.currentTimeMillis();
 			s_obj = SoffitUtil.ReadStream(ais);
 			long end = Profiler.RDTSC();
-			long endMS = System.currentTimeMillis();
 			
 			long total = end - start;
-			long totalMS = endMS - startMS;
 			if(total < bestRead)
 				bestRead = total;
-			
-			if(totalMS < bestReadMS)
-				bestReadMS = totalMS;
 		}
 		
 		
@@ -69,7 +62,7 @@ public class SoffitTest {
 		Thread.sleep(250);
 		
 		long bestWrite = Long.MAX_VALUE;
-		for(int i = 0; i < 1000; i++) {
+		for(int i = 0; i < 3000; i++) {
 			aos.reset();
 			
 			long start = Profiler.RDTSC();
@@ -86,7 +79,6 @@ public class SoffitTest {
 	
 		System.out.println("read:  " + bestRead);
 		System.out.println("write: " + bestWrite);
-		System.out.println("readMS:  " + bestReadMS);
 		//System.out.println("write: " + writeProfiler.getTotalCounts());
 		
 		
