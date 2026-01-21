@@ -1,4 +1,5 @@
 v1.5.0
+-Major perfomance enhancements (serialization speed increased by ~2.5, and deserialization speed increased by ~6.9x)
 -Added convenience getters and setters for SoffitField.
 
 v1.4.2
