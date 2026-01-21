@@ -31,6 +31,10 @@
 
 package fibrous.soffit;
 
+/**
+ * This class contains the SOFFIT version of a key-value pair.
+ * There are a variety of convenience methods to help store and read data easily.
+ */
 public class SoffitField {
 	private SoffitObject parent = null;
 	
@@ -58,10 +62,28 @@ public class SoffitField {
 	}
 	
 	/**
+	 * Returns the name/label of this SoffitField.
+	 * This is functionally equivalent to getName().
+	 * @return
+	 */
+	public String name() {
+		return name;
+	}
+	
+	/**
 	 * Returns the value of this SoffitField.
 	 * @return
 	 */
 	public String getValue() {
+		return value;
+	}
+	
+	/**
+	 * Returns the value of this SoffitField.
+	 * This is functionally equivalent to getValue().
+	 * @return
+	 */
+	public String value() {
 		return value;
 	}
 	
@@ -147,7 +169,7 @@ public class SoffitField {
 	
 	/**
 	 * Returns the value of this SoffitField as a String.
-	 * This is functionally equivalent getValue().
+	 * This is functionally equivalent to getValue().
 	 * @return
 	 */
 	public String asString() {
