@@ -57,6 +57,8 @@ public class SoffitUtil {
 	public static final byte[] SOFFIT_START_BYTES = SOFFIT_START.getBytes();
 	public static final byte[] SOFFIT_END_BYTES = SOFFIT_END.getBytes();
 	public static final char ESCAPE_SEQUENCE = '\\';
+	static final byte[] OPEN_CURLY = "{".getBytes();
+	static final byte[] CLOSING_CURLY = "}".getBytes();
 	
 	private static int lineNumber = 0;
 	
@@ -70,11 +72,13 @@ public class SoffitUtil {
 	public static SoffitObject ReadStream(InputStream stream) throws SoffitException, IOException {
 		lineNumber = 0;
 		
-		ArrayOutputStream internalStream = new ArrayOutputStream(4096);
+		//This is an internal buffer used for combining chars/strings, and the number passed into this constructor is ultimately how many characters can be in a line.
+		//Rather large buffer to account for an absurdly long line
+		ArrayOutputStream internalStream = new ArrayOutputStream(65536);
 		
 		SoffitObject root = new SoffitObject(null, null);
 		
-		byte[] header = getLineBytes(stream, internalStream);
+		byte[] header = getLine(stream, internalStream);
 		if(!areBytesEqual(header, SOFFIT_START_BYTES))
 			throw new SoffitException("SOFFIT header not found.");
 		
@@ -91,7 +95,8 @@ public class SoffitUtil {
 	public static void WriteStream(SoffitObject root, OutputStream output) throws IOException {
 		BufferedOutputStream bStream = new BufferedOutputStream(output);
 		//This is an internal buffer used for combining chars/strings, and the number passed into this constructor is ultimately how many characters can be in a line.
-		ArrayOutputStream internalStream = new ArrayOutputStream(4096);
+		//Rather large buffer to account for an absurdly long line
+		ArrayOutputStream internalStream = new ArrayOutputStream(65536);
 		
 		//Write header
 		byte[] lineBytes = (SOFFIT_START + "\n").getBytes();
@@ -197,7 +202,7 @@ public class SoffitUtil {
 		
 		while (!stack.isEmpty()) {
 			SoffitObject currentObject = stack.peek();
-			byte[] line = getLineBytes(stream, internalStream);
+			byte[] line = getLine(stream, internalStream);
 			
 			//If we didn't get anything, then break out.
 			if (line == null) {
@@ -276,12 +281,10 @@ public class SoffitUtil {
 		ArrayList<byte[]> tokens = new ArrayList<>();
 		
 		int mark = 0;
-		//String nextToken = null;
 		byte[] nextToken = null;
 		
 		try {
 			while(true) {
-				//nextToken = "";
 				tokenStream.reset();
 				
 				//Look for quotes
@@ -320,22 +323,12 @@ public class SoffitUtil {
 						tokenStream.write(line[i]);
 					}
 				}
-				/*
-				if(!nextToken.isBlank() && !nextToken.isEmpty()) {
-					tokens.add(nextToken);
-				}
-				*/
 				
 				nextToken = stripByteArray(tokenStream.getWrittenBytes());
 				if(!areBytesBlank(nextToken))
 					tokens.add(nextToken);
 			}
 		} catch (IndexOutOfBoundsException e) {
-			/*
-			if(!nextToken.isBlank() && !nextToken.isEmpty()) {
-				tokens.add(nextToken);
-			}
-			*/
 			nextToken = stripByteArray(tokenStream.getWrittenBytes());
 			if(!areBytesBlank(nextToken))
 				tokens.add(nextToken);
@@ -344,64 +337,7 @@ public class SoffitUtil {
 		return tokens;
 	}
 	
-	private static String getLine(InputStream is, ArrayOutputStream internalStream) {
-		
-		while(true) {
-			internalStream.reset();
-			boolean eos = false;
-			//String line = "";
-			lineNumber++;
-			
-			while(true) {
-				
-				try {
-					int c = is.read();
-					
-					//Check for EOS;
-					if(c == -1) {
-						eos = true;
-						break;
-					}
-					
-					//Check for new line
-					if(c == (int) '\n')
-						break;
-					if(c == (int) '\r')
-						break;
-					
-					internalStream.write((byte) c);
-					
-				} catch(IOException e) {
-					//Explicitly return null
-					return null;
-				}
-			}
-			
-			byte[] bytes = stripByteArray(internalStream.getWrittenBytes());
-			String line = new String(bytes, StandardCharsets.US_ASCII);
-			
-			//Check for EOS and essentially a null line
-			if(eos && line.length() == 0)
-				return null;
-			
-			//Return if EOS is reached
-			if(eos)
-				return line;
-			
-			//Check for blank line
-			if(line.isEmpty() || line.isBlank())
-				continue;
-			
-			//Check for comments
-			if(line.charAt(0) == '#')
-				continue;
-			
-			if(line != null)
-				return line;
-		}
-	}
-	
-	private static byte[] getLineBytes(InputStream is, ArrayOutputStream internalStream) {
+	private static byte[] getLine(InputStream is, ArrayOutputStream internalStream) {
 		
 		while(true) {
 			internalStream.reset();
@@ -452,10 +388,6 @@ public class SoffitUtil {
 			if(bytes[0] == (byte) '#')
 				continue;
 			
-			/*
-			if(bytes != null)
-				return bytes;
-			*/
 			return bytes;
 		}
 	}
@@ -519,8 +451,6 @@ public class SoffitUtil {
 		
 		String name = field.getName();
 		String value = field.getValue();
-		
-		//String line = "";
 		
 		//Set indentation
 		for(int i = 0; i < field.getNestingLevel(); i++) {
@@ -634,28 +564,24 @@ public class SoffitUtil {
 		for(int i = 0; i < s.length(); i++) {
 			//Double quote correction
 			if(s.charAt(i) == '"') {
-				//convertedString += "\\\"";
 				internalStream.write((byte) '\\');
 				internalStream.write((byte) '"');
 				continue;
 			}
 			//Newline correction
 			if(s.charAt(i) == '\n') {
-				//convertedString += "\\n";
 				internalStream.write((byte) '\\');
 				internalStream.write((byte) 'n');
 				continue;
 			}
 			//Backslash correction
 			if(s.charAt(i) == ESCAPE_SEQUENCE) {
-				//convertedString += "\\\\";
 				internalStream.write((byte) '\\');
 				internalStream.write((byte) '\\');
 				continue;
 			}
 			
 			//Add all normal characters
-			//convertedString += s.charAt(i);
 			internalStream.write((byte) s.charAt(i));
 		}
 		
@@ -676,7 +602,7 @@ public class SoffitUtil {
 		byte[] lastToken = tokens.get(tokens.size() - 1);
 		
 		//Bracket indicates object
-		//TODO: is this redundant?  Is this method called before the isObject method?
+		//TODO: is this redundant?  This seems logically accounted for in the parseObject method
 		if(areBytesEqual(lastToken, OPEN_CURLY))
 			return false;
 		
@@ -692,9 +618,6 @@ public class SoffitUtil {
 		//default determination of false
 		return false;
 	}
-	
-	static final byte[] OPEN_CURLY = "{".getBytes();
-	static final byte[] CLOSING_CURLY = "}".getBytes();
 	
 	private static boolean isObject(ArrayList<byte[]> tokens) {
 		
@@ -747,6 +670,10 @@ public class SoffitUtil {
 	}
 }
 
+/**
+ * This class is essentially a fixed-length ByteArrayOutputStream with some specific features that help in the SoffitUtil class.
+ * This class performs NO bounds checking on the buffer to increase speed.
+ */
 class ArrayOutputStream extends OutputStream {
 	byte[] buffer;
 	int pos = 0;
