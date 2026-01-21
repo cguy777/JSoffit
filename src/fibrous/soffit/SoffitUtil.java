@@ -58,8 +58,6 @@ public class SoffitUtil {
 	public static final byte[] SOFFIT_END_BYTES = SOFFIT_END.getBytes();
 	public static final char ESCAPE_SEQUENCE = '\\';
 	
-	//static final byte 
-	
 	private static int lineNumber = 0;
 	
 	/**
@@ -206,26 +204,21 @@ public class SoffitUtil {
 			    throw new SoffitException("Incomplete SOFFIT stream.");
 			}
 			
-			ArrayList<byte[]> tokensBytes = getLineTokens(line, internalStream);
-			
-			ArrayList<String> tokens = new ArrayList<>();
-			for(int i = 0; i < tokensBytes.size(); i++) {
-				tokens.add(new String(tokensBytes.get(i), StandardCharsets.US_ASCII));
-			}
+			ArrayList<byte[]> tokens = getLineTokens(line, internalStream);
 			
 			//Ensure there are no double quotes in first token (The first token would be an object type, field name, or closing bracket)
 			if(containsCharacter(tokens.get(0), '"'))
 				throw new SoffitException("SOFFIT syntax error.", lineNumber);
 			
 			//Closing Bracket
-			if (tokens.size() == 1 && tokens.get(0).equals("}")) {
+			if (tokens.size() == 1 && areBytesEqual(tokens.get(0), CLOSING_CURLY)) {
 				if (!currentObject.isRoot()) {
 					stack.pop();
 				} else {
 					throw new SoffitException("SOFFIT stream contained too many closing brackets.", lineNumber);
 				}
 			//SOFFIT Footer
-			} else if (tokens.get(0).equals(SOFFIT_END)) {
+			} else if (areBytesEqual(tokens.get(0), SOFFIT_END_BYTES)) {
 				if (!currentObject.isRoot()) {
 					throw new SoffitException("SOFFIT footer encountered in non-root object.", lineNumber);
 				}
@@ -233,40 +226,42 @@ public class SoffitUtil {
 			//Handle Objects
 			} else if (isObject(tokens)) {
 				SoffitObject object;
-				String type = tokens.get(0);
+				byte[] type = tokens.get(0);
 				
 				if(tokens.size() == 2) {
-					object = new SoffitObject(type, null);
+					object = new SoffitObject(new String(type, StandardCharsets.US_ASCII));
 				} else {
-					String name = stripQuotations(tokens.get(1));
+					byte[] name = stripQuotations(tokens.get(1));
 					
 					//Check for proper escape sequences
 					try {
-						name = convertFromEscapeSequence(name);
+						name = convertFromEscapeSequence(name, internalStream);
 					} catch (SoffitException e) {
 						throw new SoffitException(e, lineNumber);
 					}
-					object = new SoffitObject(type, name);
+					object = new SoffitObject(new String(type, StandardCharsets.US_ASCII), new String(name, StandardCharsets.US_ASCII));
 				}
 				
 				currentObject.add(object);
 				stack.push(object);
 			//Handle Fields
 			} else if (isField(tokens)) {
-				String name = tokens.get(0);
-				String value = "";
+				byte[] name = tokens.get(0);
 				
 				//Set value, if defined.
-				if(tokens.size() > 1)
-					value = stripQuotations(tokens.get(1));
+				if(tokens.size() > 1) {
+					byte[] value = stripQuotations(tokens.get(1));
 			
-				// Check for proper escape sequences
-				try {
-					value = convertFromEscapeSequence(value);
-				} catch (SoffitException e) {
-					throw new SoffitException(e, lineNumber);
+					// Check for proper escape sequences
+					try {
+						value = convertFromEscapeSequence(value, internalStream);
+					} catch (SoffitException e) {
+						throw new SoffitException(e, lineNumber);
+					}
+					currentObject.add(new SoffitField(new String(name, StandardCharsets.US_ASCII), new String(value, StandardCharsets.US_ASCII)));
+				} else {
+					currentObject.add(new SoffitField(new String(name, StandardCharsets.US_ASCII), ""));
 				}
-				currentObject.add(new SoffitField(name, value));
 			} else {
 			    throw new SoffitException("SOFFIT syntax error.", lineNumber);
 			}
@@ -592,32 +587,34 @@ public class SoffitUtil {
 	
 	/**
 	 * Internal to the parseObject method.
+	 * @throws IOException 
 	 */
-	private static String convertFromEscapeSequence(String s) {
+	private static byte[] convertFromEscapeSequence(byte[] s, ArrayOutputStream internalStream) throws IOException {
 		
-		String convertedString = "";
+		//String convertedString = "";
+		internalStream.reset();
 		
-		for(int i = 0; i < s.length(); i++) {
+		for(int i = 0; i < s.length; i++) {
 			//Look for escape character
-			if(s.charAt(i) == '\\') {
+			if(s[i] == (byte) '\\') {
 				
 				//Double quote
-				if(s.charAt(i + 1) == '"') {
-					convertedString += '"';
+				if(s[i + 1] == (byte) '"') {
+					internalStream.write((byte) '"');
 					i++;
 					continue;
 				}
 				
 				//Newline
-				if(s.charAt(i + 1) == 'n') {
-					convertedString += '\n';
+				if(s[i + 1] == 'n') {
+					internalStream.write((byte) '\n');
 					i++;
 					continue;
 				}
 				
 				//Backslash
-				if(s.charAt(i + 1) == '\\') {
-					convertedString += '\\';
+				if(s[i + 1] == '\\') {
+					internalStream.write((byte) '\\');
 					i++;
 					continue;
 				}
@@ -626,10 +623,10 @@ public class SoffitUtil {
 			}
 			
 			//Add all normal characters
-			convertedString += s.charAt(i);
+			internalStream.write(s[i]);
 		}
 		
-		return convertedString;
+		return internalStream.getWrittenBytes();
 	}
 	
 	private static byte[] convertToEscapeSequence(String s, ArrayOutputStream internalStream) throws IOException {
@@ -666,26 +663,25 @@ public class SoffitUtil {
 		return internalStream.getWrittenBytesFromMark();
 	}
 	
-	private static String stripQuotations(String s) {
-		String stripped = "";
-		for(int i = 0; i < s.length() - 2; i++) {
-			stripped += s.charAt(i + 1);
-		}
+	private static byte[] stripQuotations(byte[] s) {
+		byte[] stripped = new byte[s.length - 2];
+		System.arraycopy(s, 1, stripped, 0, stripped.length);
 		return stripped;
 	}
 	
-	private static boolean isField(ArrayList<String> tokens) {
+	private static boolean isField(ArrayList<byte[]> tokens) {
 		if(tokens.size() > 2)
 			return false;
 		
-		String lastToken = tokens.get(tokens.size() - 1);
+		byte[] lastToken = tokens.get(tokens.size() - 1);
 		
 		//Bracket indicates object
-		if(lastToken.equals("{"))
+		//TODO: is this redundant?  Is this method called before the isObject method?
+		if(areBytesEqual(lastToken, OPEN_CURLY))
 			return false;
 		
 		//Check for quotes
-		if(lastToken.charAt(0) == '"' && lastToken.charAt(lastToken.length() - 1) == '"')
+		if(lastToken[0] == (byte) '"' && lastToken[lastToken.length - 1] == (byte) '"')
 			return true;
 		
 		//Null field
@@ -697,27 +693,30 @@ public class SoffitUtil {
 		return false;
 	}
 	
-	private static boolean isObject(ArrayList<String> tokens) {
+	static final byte[] OPEN_CURLY = "{".getBytes();
+	static final byte[] CLOSING_CURLY = "}".getBytes();
+	
+	private static boolean isObject(ArrayList<byte[]> tokens) {
 		
 		//Check requirements for object without a name
 		if(tokens.size() == 2) {
-			//Check for trailing bracket
+			//Check for open bracket
 			//Bracket is required to be an object
-			String lastToken = tokens.get(1);
-			if(lastToken.equals("{"))
+			byte[] lastToken = tokens.get(1);
+			if(areBytesEqual(lastToken, OPEN_CURLY))
 				return true;
 		}
 		
 		//Check requirements for object with a name
 		if(tokens.size() == 3) {
-			String token2 = tokens.get(1);
-			String token3 = tokens.get(2);
+			byte[] token2 = tokens.get(1);
+			byte[] token3 = tokens.get(2);
 			
 			//Verify enclosing quotes for name, if a name is specified
-			if(token2.charAt(0) == '"' && token2.charAt(token2.length() - 1) == '"') {
+			if(token2[0] == (byte) '"' && token2[token2.length - 1] == (byte) '"') {
 				
 				//Check for trailing bracket
-				if(token3.equals("{"))
+				if(areBytesEqual(token3, OPEN_CURLY))
 					return true;
 			}
 		}		
@@ -726,9 +725,9 @@ public class SoffitUtil {
 		return false;
 	}
 	
-	private static boolean containsCharacter(String s, char c) {
-		for(int i = 0; i < s.length(); i++) {
-			if(s.charAt(i) == c)
+	private static boolean containsCharacter(byte[] s, char c) {
+		for(int i = 0; i < s.length; i++) {
+			if(s[i] == c)
 				return true;
 		}
 		
