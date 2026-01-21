@@ -58,6 +58,8 @@ public class SoffitUtil {
 	public static final byte[] SOFFIT_END_BYTES = SOFFIT_END.getBytes();
 	public static final char ESCAPE_SEQUENCE = '\\';
 	
+	//static final byte 
+	
 	private static int lineNumber = 0;
 	
 	/**
@@ -65,16 +67,17 @@ public class SoffitUtil {
 	 * @param stream
 	 * @return The SOFFIT root object as parsed from the InputStream.
 	 * @throws SoffitException
+	 * @throws IOException 
 	 */
-	public static SoffitObject ReadStream(InputStream stream) throws SoffitException {
+	public static SoffitObject ReadStream(InputStream stream) throws SoffitException, IOException {
 		lineNumber = 0;
 		
 		ArrayOutputStream internalStream = new ArrayOutputStream(4096);
 		
 		SoffitObject root = new SoffitObject(null, null);
 		
-		String header = getLine(stream, internalStream);
-		if(!header.equals(SOFFIT_START))
+		byte[] header = getLineBytes(stream, internalStream);
+		if(!areBytesEqual(header, SOFFIT_START_BYTES))
 			throw new SoffitException("SOFFIT header not found.");
 		
 		parseObject(stream, root, internalStream);
@@ -129,8 +132,10 @@ public class SoffitUtil {
 	 * Convenience method to read a Soffit stream from a formatted string.
 	 * @param stream
 	 * @return
+	 * @throws IOException 
+	 * @throws SoffitException 
 	 */
-	public static SoffitObject ReadStreamFromString(String stream) {
+	public static SoffitObject ReadStreamFromString(String stream) throws SoffitException, IOException {
 		ByteArrayInputStream bais = new ByteArrayInputStream(stream.getBytes());
 		return ReadStream(bais);
 	}
@@ -185,22 +190,28 @@ public class SoffitUtil {
 	
 	/**
 	 * Parses and interprets SoffitObjects and its contained SoffitFields and nested SoffitObjects.
+	 * @throws IOException 
 	 */
 	
-	private static void parseObject(InputStream stream, SoffitObject parent, ArrayOutputStream internalStream) throws SoffitException {
+	private static void parseObject(InputStream stream, SoffitObject parent, ArrayOutputStream internalStream) throws SoffitException, IOException {
 		Stack<SoffitObject> stack = new Stack<>();
 		stack.push(parent);
 		
 		while (!stack.isEmpty()) {
 			SoffitObject currentObject = stack.peek();
-			String line = getLine(stream, internalStream);
+			byte[] line = getLineBytes(stream, internalStream);
 			
 			//If we didn't get anything, then break out.
 			if (line == null) {
 			    throw new SoffitException("Incomplete SOFFIT stream.");
 			}
 			
-			ArrayList<String> tokens = getLineTokens(line);
+			ArrayList<byte[]> tokensBytes = getLineTokens(line, internalStream);
+			
+			ArrayList<String> tokens = new ArrayList<>();
+			for(int i = 0; i < tokensBytes.size(); i++) {
+				tokens.add(new String(tokensBytes.get(i), StandardCharsets.US_ASCII));
+			}
 			
 			//Ensure there are no double quotes in first token (The first token would be an object type, field name, or closing bracket)
 			if(containsCharacter(tokens.get(0), '"'))
@@ -264,65 +275,75 @@ public class SoffitUtil {
 	
 	/**
 	 * Internal to the parseObject method.
+	 * @throws IOException 
 	 */
-	private static ArrayList<String> getLineTokens(String s) {
-		String line = s;
-		ArrayList<String> tokens = new ArrayList<>();
+	private static ArrayList<byte[]> getLineTokens(byte[] line, ArrayOutputStream tokenStream) throws IOException {
+		ArrayList<byte[]> tokens = new ArrayList<>();
 		
 		int mark = 0;
-		String nextToken = null;
+		//String nextToken = null;
+		byte[] nextToken = null;
 		
 		try {
 			while(true) {
-				nextToken = "";
+				//nextToken = "";
+				tokenStream.reset();
 				
 				//Look for quotes
-				if(line.charAt(mark) == '"') {
+				if(line[mark] == (byte) '"') {
 					
-					nextToken += line.charAt(mark);
+					tokenStream.write(line[mark]);
 					mark++;
 					for(int i = mark;; i++) {
 						mark++;
 						
 						//Check for escape sequence.
-						if(line.charAt(i) == '\\') {
-							if(line.charAt(i + 1) == '"') {
-								nextToken += '"';
+						if(line[i] == (byte) '\\') {
+							if(line[i + 1] == (byte) '"') {
+								tokenStream.write((byte) '"');
 								mark++;
 								i++;
 								continue;
 							}
 						}
 						
-						if(line.charAt(i) == '"') {
-							nextToken += line.charAt(i);
+						if(line[i] == (byte) '"') {
+							tokenStream.write(line[i]);
 							break;
 						}
 						
-						nextToken += line.charAt(i);
+						tokenStream.write(line[i]);
 					}
 				} else {
 					for(int i = mark;; i++) {
 						mark++;
 						
 						//Check for space
-						if(line.charAt(i) == ' ')
+						if(line[i] == ' ')
 							break;
 						
-						nextToken += line.charAt(i);
+						tokenStream.write(line[i]);
 					}
 				}
-				
+				/*
 				if(!nextToken.isBlank() && !nextToken.isEmpty()) {
-					nextToken.strip();
 					tokens.add(nextToken);
 				}
+				*/
+				
+				nextToken = stripByteArray(tokenStream.getWrittenBytes());
+				if(!areBytesBlank(nextToken))
+					tokens.add(nextToken);
 			}
 		} catch (IndexOutOfBoundsException e) {
+			/*
 			if(!nextToken.isBlank() && !nextToken.isEmpty()) {
-				nextToken.strip();
 				tokens.add(nextToken);
 			}
+			*/
+			nextToken = stripByteArray(tokenStream.getWrittenBytes());
+			if(!areBytesBlank(nextToken))
+				tokens.add(nextToken);
 		}
 		
 		return tokens;
@@ -353,7 +374,6 @@ public class SoffitUtil {
 					if(c == (int) '\r')
 						break;
 					
-					//line += (char) c;
 					internalStream.write((byte) c);
 					
 				} catch(IOException e) {
@@ -362,9 +382,8 @@ public class SoffitUtil {
 				}
 			}
 			
-			//line = line.strip();
-			String line = new String(internalStream.getWrittenBytes(), StandardCharsets.US_ASCII);
-			line = line.strip();
+			byte[] bytes = stripByteArray(internalStream.getWrittenBytes());
+			String line = new String(bytes, StandardCharsets.US_ASCII);
 			
 			//Check for EOS and essentially a null line
 			if(eos && line.length() == 0)
@@ -384,6 +403,115 @@ public class SoffitUtil {
 			
 			if(line != null)
 				return line;
+		}
+	}
+	
+	private static byte[] getLineBytes(InputStream is, ArrayOutputStream internalStream) {
+		
+		while(true) {
+			internalStream.reset();
+			boolean eos = false;
+			lineNumber++;
+			
+			while(true) {
+				
+				try {
+					int c = is.read();
+					
+					//Check for EOS;
+					if(c == -1) {
+						eos = true;
+						break;
+					}
+					
+					//Check for new line
+					if(c == (int) '\n')
+						break;
+					if(c == (int) '\r')
+						break;
+					
+					internalStream.write((byte) c);
+					
+				} catch(IOException e) {
+					//Explicitly return null
+					return null;
+				}
+			}
+			
+			byte[] bytes = stripByteArray(internalStream.getWrittenBytes());
+			//String line = new String(bytes, StandardCharsets.US_ASCII);
+			
+			//Check for EOS and essentially a null line
+			if(eos && bytes.length == 0)
+				return null;
+			
+			//Return if EOS is reached
+			if(eos)
+				return bytes;
+			
+			//Check for blank line
+			if(bytes.length == 0)
+				continue;
+			
+			//Check for comments
+			if(bytes[0] == (byte) '#')
+				continue;
+			
+			/*
+			if(bytes != null)
+				return bytes;
+			*/
+			return bytes;
+		}
+	}
+	
+	/**
+	 * Removes whitespace from a byte array.
+	 * @param bytes
+	 * @return
+	 */
+	private static byte[] stripByteArray(byte[] bytes) {
+		int left = 0;
+		for(; left < bytes.length; left++) {
+			if(!isWhitespace(bytes[left])) {
+				break;
+			}
+		}
+		
+		int right = bytes.length - 1;
+		for(; right >= 0; right--) {
+			if(!isWhitespace(bytes[right])) {
+				break;
+			}
+		}
+		
+		byte[] strippedBytes = new byte[right - left + 1];
+		System.arraycopy(bytes, left, strippedBytes, 0, strippedBytes.length);
+		return strippedBytes;
+	}
+	
+	private static boolean areBytesBlank(byte[] bytes) {
+		if(bytes.length == 0)
+			return true;
+		
+		for(int i = 0; i < bytes.length; i++) {
+			if(!isWhitespace(bytes[i]))
+				return false;
+		}
+		
+		return true;
+	}
+	
+	private static boolean isWhitespace(int i) {
+		switch(i) {
+		//tab
+		case 9:
+		//space
+		case 32:
+			return true;
+			
+		default:
+			return false;
 		}
 	}
 	
