@@ -55,7 +55,6 @@ public class SoffitTest {
 				bestRead = total;
 		}
 		
-		
 		var fos = new FileOutputStream("OutputSoffit.soffit");
 		var aos = new ArrayOutputStream(1024 * 1024);
 		
