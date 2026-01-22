@@ -668,7 +668,7 @@ public class SoffitUtil {
 
 /**
  * This class is essentially a fixed-length ByteArrayOutputStream with some specific features that help in the SoffitUtil class.
- * This class performs NO bounds checking on the buffer to increase speed.
+ * This class performs NO bounds checking on the buffer to increase speed, but will throw an exception with a descriptive message if the internal byte array is overfilled
  */
 class ArrayOutputStream extends OutputStream {
 	byte[] buffer;
@@ -681,20 +681,32 @@ class ArrayOutputStream extends OutputStream {
 
 	@Override
 	public void write(int b) throws IOException {
-		buffer[pos] = (byte) b;
-		pos++;
+		try {
+			buffer[pos] = (byte) b;
+			pos++;
+		} catch (IndexOutOfBoundsException e) {
+			throw new ArrayIndexOutOfBoundsException("SOFFIT line buffer with " + buffer.length + " byte capacity was overfilled");
+		}
 	}
 	
 	@Override
 	public void write(byte[] b) {
-		System.arraycopy(b, 0, buffer, pos, b.length);
-		pos += b.length;
+		try {
+			System.arraycopy(b, 0, buffer, pos, b.length);
+			pos += b.length;
+		} catch (IndexOutOfBoundsException e) {
+			throw new ArrayIndexOutOfBoundsException("SOFFIT line buffer with " + buffer.length + " byte capacity was overfilled");
+		}
 	}
 	
 	@Override
 	public void write(byte[] b, int off, int len) {
-		System.arraycopy(b, 0, buffer, pos, len);
-		pos += len;
+		try {
+			System.arraycopy(b, 0, buffer, pos, len);
+			pos += len;
+		} catch (IndexOutOfBoundsException e) {
+			throw new ArrayIndexOutOfBoundsException("SOFFIT line buffer with " + buffer.length + " byte capacity was overfilled");
+		}
 	}
 	
 	public void reset() {
