@@ -654,6 +654,9 @@ public class SoffitUtil {
 	}
 	
 	private static boolean areBytesEqual(byte[] a, byte[] b) {
+		if(a == null || b == null)
+			return false;
+		
 		if(a.length != b.length)
 			return false;
 		
